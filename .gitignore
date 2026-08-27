@@ -141,3 +141,47 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# ============================================================
+# Java / Kotlin / Quarkus / Maven
+# ============================================================
+target/
+*.class
+*.jar
+*.war
+!**/test/**/*.jar
+
+# Quarkus
+.quarkus/
+
+# Maven wrapper binary (keep shell script, ignore generated jar)
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/mvnw.cmd
+
+# IntelliJ / IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+*.factorypath
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# ============================================================
+# Environment / secrets
+# ============================================================
+backend/.env
+frontend/.env
+*.env
+!.env.example
+
+# ============================================================
+# Nx / Angular build artifacts
+# ============================================================
+frontend/dist/
+frontend/.nx/
+frontend/.angular/
