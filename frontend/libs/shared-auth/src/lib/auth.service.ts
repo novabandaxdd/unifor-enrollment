@@ -10,21 +10,35 @@ export class AuthService {
     return from(this.keycloak.getToken());
   }
 
+  /**
+   * Returns realm-level roles from the Keycloak token.
+   * keycloak-angular v20: getUserRoles(true) returns realm roles (allRoles=true).
+   */
   getUserRoles(): string[] {
-    return this.keycloak.getUserRoles() ?? [];
+    // true = include realm roles (not just client roles)
+    return this.keycloak.getUserRoles(true) ?? [];
   }
 
   isCoordinator(): boolean {
-    return this.keycloak.isUserInRole('COORDENADOR');
+    return this.getUserRoles().includes('COORDENADOR');
   }
 
   isStudent(): boolean {
-    return this.keycloak.isUserInRole('ALUNO');
+    return this.getUserRoles().includes('ALUNO');
   }
 
   getUsername(): string {
-    const profile = this.keycloak.getKeycloakInstance()?.tokenParsed;
-    return (profile?.['preferred_username'] as string) ?? '';
+    const tokenParsed = this.keycloak.getKeycloakInstance()?.tokenParsed;
+    // Return firstName if available, otherwise preferred_username (email)
+    return (
+      (tokenParsed?.['given_name'] as string) ||
+      (tokenParsed?.['preferred_username'] as string) ||
+      ''
+    );
+  }
+
+  getKeycloakId(): string {
+    return this.keycloak.getKeycloakInstance()?.subject ?? '';
   }
 
   logout(): void {
