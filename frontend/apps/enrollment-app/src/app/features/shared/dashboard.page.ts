@@ -1,13 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
+import { Card } from 'primeng/card';
+import { Button } from 'primeng/button';
 import { AuthService } from '@unifor/shared-auth';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, CardModule, ButtonModule],
+  imports: [RouterLink, Card, Button],
   template: `
     <div class="dashboard-container">
       <h1 class="dashboard-title">
