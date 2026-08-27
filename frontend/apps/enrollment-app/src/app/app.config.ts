@@ -2,12 +2,7 @@ import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import {
-  provideKeycloak,
-  withAutoRefreshToken,
-  AutoRefreshTokenService,
-  UserActivityService,
-} from 'keycloak-angular';
+import { provideKeycloak, withAutoRefreshToken } from 'keycloak-angular';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 
@@ -29,6 +24,7 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
+    // Make ENVIRONMENT available to all services via DI
     {
       provide: ENVIRONMENT,
       useValue: environment,
@@ -47,10 +43,9 @@ export const appConfig: ApplicationConfig = {
       features: [
         withAutoRefreshToken({
           onInactivityTimeout: 'logout',
-          sessionTimeout: 60000,
+          sessionTimeout: 300000,
         }),
       ],
-      providers: [AutoRefreshTokenService, UserActivityService],
     }),
   ],
 };

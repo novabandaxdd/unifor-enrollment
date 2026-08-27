@@ -15,7 +15,11 @@ import {
 @Injectable({ providedIn: 'root' })
 export class MatrizApiService {
   private http = inject(HttpClient);
-  private baseUrl = inject(ENVIRONMENT).apiUrl;
+  private env = inject(ENVIRONMENT);
+
+  private get baseUrl(): string {
+    return this.env.apiUrl;
+  }
 
   listar(filtros?: {
     periodo?: string;
