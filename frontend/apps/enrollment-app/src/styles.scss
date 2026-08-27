@@ -1,7 +1,7 @@
-/* Global styles */
-@import 'primeng/resources/themes/lara-light-blue/theme';
-@import 'primeng/resources/primeng';
-@import 'primeicons/primeicons';
+/* Global styles — PrimeNG v19 + Angular 20 */
+
+/* PrimeNG base styles */
+@import "primeicons/primeicons.css";
 
 * {
   box-sizing: border-box;
@@ -9,7 +9,17 @@
 
 body {
   margin: 0;
-  font-family: var(--font-family);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: #f8f9fa;
   color: #333;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Utility */
+.w-full { width: 100%; }
+
+/* PrimeNG table tweak */
+.p-datatable .p-datatable-tbody > tr > td {
+  vertical-align: middle;
 }

@@ -12,10 +12,10 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Copy package files first for layer caching
-COPY package.json package-lock.json* ./
+COPY package.json ./
 
-# Install dependencies (ci for reproducible installs)
-RUN npm ci --prefer-offline --no-audit
+# Install dependencies
+RUN npm install --no-audit --no-fund
 
 # Copy the rest of the workspace
 COPY . .
