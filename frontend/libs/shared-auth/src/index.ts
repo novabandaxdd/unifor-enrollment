@@ -1,4 +1,2 @@
-// Shared Auth lib — will be implemented in Phase 5
-// Exports KeycloakService wrapper, AuthGuard, RoleGuard, and token interceptor
-
-export {};
+export { authGuard, roleGuard } from './lib/auth.guard';
+export { AuthService } from './lib/auth.service';

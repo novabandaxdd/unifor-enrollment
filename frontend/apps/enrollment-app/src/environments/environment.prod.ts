@@ -1,6 +1,8 @@
-export const environment = {
+import { Environment } from '@unifor/shared-data-access';
+
+export const environment: Environment & { production: boolean } = {
   production: true,
-  apiBaseUrl: '/api',
+  apiUrl: '/api',
   keycloak: {
     url: '/auth',
     realm: 'unifor',

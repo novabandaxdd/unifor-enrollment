@@ -1,4 +1,7 @@
-// Shared Data-Access lib — will be implemented in Phase 5
-// Exports API services (MatrizApiService, MatriculaApiService) and HTTP interceptors
-
-export {};
+export { ENVIRONMENT } from './lib/environment.token';
+export type { Environment } from './lib/environment.token';
+export * from './lib/models';
+export { authInterceptor } from './lib/api.interceptor';
+export { MatrizApiService } from './lib/matriz.api.service';
+export { MatriculaApiService } from './lib/matricula.api.service';
+export { MatrizStore } from './lib/matriz.store';
