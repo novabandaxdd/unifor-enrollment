@@ -312,3 +312,67 @@ T=4  Thread B: ROLLBACK
 | PKCE para SPA (sem client_secret no browser) | ✅ |
 | Isolamento de dados por keycloakId no backend | ✅ |
 | OpenAPI/Swagger gerado automaticamente | ✅ |
+
+---
+
+## 8. Troubleshooting do Docker Build — Lições Aprendidas
+
+Durante o processo de build com `docker compose up --build`, três classes de erros foram encontradas e resolvidas. Documentá-las demonstra domínio do ciclo real de desenvolvimento.
+
+### 8.1 `This type does not have a constructor` — Kotlin + JPA
+
+**Causa:** Classes de entidade Kotlin herdam de `PanacheEntityBase` com parênteses (`PanacheEntityBase()`), o que tenta invocar um construtor inexistente em vez de apenas herdar. Além disso, JPA/Hibernate 6 exige um **construtor sem argumentos** em todas as classes `@Entity`, que o Kotlin não gera automaticamente.
+
+**Solução:**
+1. Remover os parênteses: `class Aluno : PanacheEntityBase` (sem `()`)
+2. Adicionar o plugin `kotlin-maven-noarg` no `pom.xml` com `no-arg:annotation=jakarta.persistence.Entity` — gera o construtor sinteticamente sem expô-lo no código-fonte
+
+```xml
+<compilerPlugins>
+  <plugin>all-open</plugin>
+  <plugin>no-arg</plugin>   <!-- novo -->
+</compilerPlugins>
+<pluginOptions>
+  <option>no-arg:annotation=jakarta.persistence.Entity</option>
+</pluginOptions>
+```
+
+### 8.2 `Unresolved reference 'validation'` — Jakarta Validation ausente
+
+**Causa:** O `pom.xml` não incluía `quarkus-hibernate-validator`, então as anotações `@NotNull`, `@Valid`, `@Min` etc. do pacote `jakarta.validation` não estavam disponíveis em compile time.
+
+**Solução:** Adicionar a dependência:
+```xml
+<dependency>
+  <groupId>io.quarkus</groupId>
+  <artifactId>quarkus-hibernate-validator</artifactId>
+</dependency>
+```
+
+### 8.3 `@Authenticated + @RolesAllowed` — Anotações de segurança conflitantes
+
+**Causa:** O Quarkus Security proíbe o uso combinado de `@Authenticated` e `@RolesAllowed` na mesma classe — são mutuamente exclusivos por design.
+
+**Solução:** Remover `@Authenticated` — `@RolesAllowed("ROLE")` já implica autenticação obrigatória:
+```kotlin
+// ❌ Antes — IllegalStateException em build
+@Authenticated
+@RolesAllowed("COORDENADOR")
+
+// ✅ Depois
+@RolesAllowed("COORDENADOR")
+```
+
+### 8.4 `@GenericGenerator` deprecated no Hibernate 6
+
+**Oportunidade de melhoria** identificada durante o processo: a anotação `@GenericGenerator(strategy = "org.hibernate.id.UUIDGenerator")` foi marcada como deprecated no Hibernate 6 (usado pelo Quarkus 3.x). Migrado para a API nativa do JPA 3.1:
+```kotlin
+// Antes (Hibernate 5 style)
+@GeneratedValue(generator = "UUID")
+@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+
+// Depois (JPA 3.1 nativo)
+@GeneratedValue(strategy = GenerationType.UUID)
+```
+
+---
