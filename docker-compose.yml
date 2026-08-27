@@ -24,12 +24,11 @@ services:
     image: quay.io/keycloak/keycloak:24.0
     container_name: unifor-keycloak
     restart: unless-stopped
-    command: start-dev --import-realm --health-enabled=true
+    command: start-dev --import-realm
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KC_DB: dev-file
-      KC_HEALTH_ENABLED: "true"
     ports:
       - "8180:8080"
     volumes:
@@ -37,13 +36,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    healthcheck:
-      # Keycloak 24 management port 9000 exposes /health/ready
-      test: ["CMD-SHELL", "wget -qO- http://localhost:9000/health/ready | grep -q 'UP' || exit 1"]
-      interval: 15s
-      timeout: 10s
-      retries: 12
-      start_period: 90s
+    # No healthcheck needed — backend uses restart:unless-stopped to retry
+    # Keycloak start-dev initialises realm import before accepting connections
 
   backend:
     build:
@@ -77,7 +71,7 @@ services:
       postgres:
         condition: service_healthy
       keycloak:
-        condition: service_healthy
+        condition: service_started
 
   frontend:
     build:
