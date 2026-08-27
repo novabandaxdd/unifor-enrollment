@@ -17,11 +17,11 @@ RUN apk add --no-cache curl && \
 
 WORKDIR /app
 
-# Copy POM first — download BOM and all dependencies in one step
+# Copy POM first — pre-download all dependencies (cache layer)
 COPY pom.xml ./
-RUN mvn -B -q dependency:resolve dependency:resolve-plugins -DincludeScope=compile || true
+RUN mvn -B dependency:go-offline -q
 
-# Copy sources and build (skip tests — they run against live DB)
+# Copy sources and build (skip tests)
 COPY src/ src/
 RUN mvn -B package -DskipTests -q
 

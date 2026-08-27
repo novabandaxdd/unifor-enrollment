@@ -11,14 +11,14 @@
   <packaging>jar</packaging>
 
   <name>Unifor Enrollment — Backend</name>
-  <description>Quarkus 3.20 + Kotlin 2.0 academic enrollment REST API</description>
+  <description>Quarkus 3.15 + Kotlin 2.0 academic enrollment REST API</description>
 
   <properties>
     <compiler-plugin.version>3.13.0</compiler-plugin.version>
     <kotlin.version>2.0.21</kotlin.version>
-    <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>3.20.0</quarkus.platform.version>
+    <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+    <quarkus.platform.version>3.15.5</quarkus.platform.version>
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -92,6 +92,13 @@
       <artifactId>quarkus-smallrye-health</artifactId>
     </dependency>
 
+    <!-- H2 for test profile -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-jdbc-h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <!-- Testing -->
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -140,9 +147,7 @@
         <executions>
           <execution>
             <id>compile</id>
-            <goals>
-              <goal>compile</goal>
-            </goals>
+            <goals><goal>compile</goal></goals>
             <configuration>
               <sourceDirs>
                 <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
@@ -151,9 +156,7 @@
           </execution>
           <execution>
             <id>test-compile</id>
-            <goals>
-              <goal>test-compile</goal>
-            </goals>
+            <goals><goal>test-compile</goal></goals>
             <configuration>
               <sourceDirs>
                 <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
@@ -175,7 +178,6 @@
             <plugin>all-open</plugin>
           </compilerPlugins>
           <pluginOptions>
-            <!-- Open classes for Quarkus/CDI proxying -->
             <option>all-open:annotation=jakarta.ws.rs.Path</option>
             <option>all-open:annotation=jakarta.enterprise.context.ApplicationScoped</option>
             <option>all-open:annotation=jakarta.enterprise.context.RequestScoped</option>
@@ -213,9 +215,7 @@
     <profile>
       <id>native</id>
       <activation>
-        <property>
-          <name>native</name>
-        </property>
+        <property><name>native</name></property>
       </activation>
       <properties>
         <skipITs>false</skipITs>
