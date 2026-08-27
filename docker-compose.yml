@@ -24,11 +24,12 @@ services:
     image: quay.io/keycloak/keycloak:24.0
     container_name: unifor-keycloak
     restart: unless-stopped
-    command: start-dev --import-realm
+    command: start-dev --import-realm --health-enabled=true
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KC_DB: dev-file
+      KC_HEALTH_ENABLED: "true"
     ports:
       - "8180:8080"
     volumes:
@@ -37,16 +38,18 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:8080/realms/unifor || exit 1"]
+      # Keycloak 24 management port 9000 exposes /health/ready
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9000/health/ready | grep -q 'UP' || exit 1"]
       interval: 15s
       timeout: 10s
-      retries: 10
-      start_period: 60s
+      retries: 12
+      start_period: 90s
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: unifor-enrollment-backend
     container_name: unifor-backend
     restart: unless-stopped
     ports:
@@ -56,10 +59,10 @@ services:
       QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/unifor_db
       QUARKUS_DATASOURCE_USERNAME: unifor
       QUARKUS_DATASOURCE_PASSWORD: unifor_pass
-      # Hibernate
+      # Hibernate — validate schema against init.sql DDL
       QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: validate
       QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT: no-file
-      # OIDC
+      # OIDC — points to keycloak service name inside Docker network
       QUARKUS_OIDC_AUTH_SERVER_URL: http://keycloak:8080/realms/unifor
       QUARKUS_OIDC_CLIENT_ID: unifor-backend
       QUARKUS_OIDC_CREDENTIALS_SECRET: unifor-backend-secret
@@ -80,6 +83,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: unifor-enrollment-frontend
     container_name: unifor-frontend
     restart: unless-stopped
     ports:
