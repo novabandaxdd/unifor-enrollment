@@ -4,7 +4,6 @@ import br.unifor.enrollment.dto.AulaResponse
 import br.unifor.enrollment.dto.MatricularRequest
 import br.unifor.enrollment.dto.MatriculaResponse
 import br.unifor.enrollment.service.MatriculaService
-import io.quarkus.security.Authenticated
 import jakarta.annotation.security.RolesAllowed
 import jakarta.inject.Inject
 import jakarta.validation.Valid
@@ -26,7 +25,6 @@ import java.util.UUID
 @Path("/api/v1")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Authenticated
 @RolesAllowed("ALUNO")
 @Tag(name = "Matrícula", description = "Matrícula do aluno em aulas da matriz curricular")
 class MatriculaResource {
