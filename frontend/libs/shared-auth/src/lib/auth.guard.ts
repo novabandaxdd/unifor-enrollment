@@ -19,7 +19,10 @@ export const roleGuard = (role: 'COORDENADOR' | 'ALUNO'): CanActivateFn => {
     const keycloak = inject(KeycloakService);
     const router = inject(Router);
 
-    const hasRole = keycloak.isUserInRole(role);
+    // getUserRoles(true) = include realm roles
+    const roles = keycloak.getUserRoles(true) ?? [];
+    const hasRole = roles.includes(role);
+
     if (!hasRole) {
       router.navigate(['/unauthorized']);
       return false;
