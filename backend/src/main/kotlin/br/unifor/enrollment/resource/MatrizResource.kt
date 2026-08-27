@@ -4,7 +4,6 @@ import br.unifor.enrollment.dto.AulaResponse
 import br.unifor.enrollment.dto.CriarAulaRequest
 import br.unifor.enrollment.dto.EditarAulaRequest
 import br.unifor.enrollment.service.MatrizService
-import io.quarkus.security.Authenticated
 import jakarta.annotation.security.RolesAllowed
 import jakarta.inject.Inject
 import jakarta.validation.Valid
@@ -28,7 +27,6 @@ import java.util.UUID
 @Path("/api/v1/matriz")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Authenticated
 @RolesAllowed("COORDENADOR")
 @Tag(name = "Matriz Curricular", description = "Gerenciamento da matriz curricular pelo coordenador")
 class MatrizResource {
