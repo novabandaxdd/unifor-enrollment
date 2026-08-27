@@ -44,7 +44,7 @@ class MatriculaResource {
     }
 
     @GET
-    @Path("/matriz/disponiveis")
+    @Path("/matricula/disponiveis")
     @Operation(summary = "Lista aulas disponíveis para o curso do aluno logado")
     fun getDisponiveis(): List<AulaResponse> {
         val keycloakId = securityContext.userPrincipal.name

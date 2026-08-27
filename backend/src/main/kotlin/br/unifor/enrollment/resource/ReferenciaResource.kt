@@ -4,7 +4,7 @@ import br.unifor.enrollment.domain.Curso
 import br.unifor.enrollment.domain.Disciplina
 import br.unifor.enrollment.domain.Horario
 import br.unifor.enrollment.domain.Professor
-import io.quarkus.security.Authenticated
+import jakarta.annotation.security.RolesAllowed
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
@@ -14,7 +14,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag
 
 @Path("/api/v1/referencias")
 @Produces(MediaType.APPLICATION_JSON)
-@Authenticated
+@RolesAllowed("ALUNO", "COORDENADOR")
 @Tag(name = "Referências", description = "Dados de referência para preenchimento de formulários")
 class ReferenciaResource {
 
