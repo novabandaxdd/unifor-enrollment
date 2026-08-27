@@ -1,9 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { CardModule } from 'primeng/card';
-import { ToastModule } from 'primeng/toast';
+import { Button } from 'primeng/button';
+import { Tag } from 'primeng/tag';
+import { Card } from 'primeng/card';
+import { Toast } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { MatriculaStore } from '@unifor/shared-data-access';
 import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
@@ -13,10 +13,10 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
   standalone: true,
   imports: [
     TableModule,
-    ButtonModule,
-    TagModule,
-    CardModule,
-    ToastModule,
+    Button,
+    Tag,
+    Card,
+    Toast,
     LoadingComponent,
     ErrorMessageComponent,
   ],
@@ -35,7 +35,7 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
           [paginator]="true"
           [rows]="10"
           [rowsPerPageOptions]="[5, 10, 20]"
-          stripedRows="true"
+          stripedRows
           responsiveLayout="scroll"
           emptyMessage="Você ainda não possui matrículas."
         >
