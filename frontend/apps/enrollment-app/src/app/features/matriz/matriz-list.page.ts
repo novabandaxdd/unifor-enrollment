@@ -1,12 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { CardModule } from 'primeng/card';
-import { DropdownModule } from 'primeng/dropdown';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
+import { Button } from 'primeng/button';
+import { Tag } from 'primeng/tag';
+import { Card } from 'primeng/card';
+import { Select } from 'primeng/select';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { Toast } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { MatrizStore } from '@unifor/shared-data-access';
@@ -19,12 +19,12 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
     RouterLink,
     FormsModule,
     TableModule,
-    ButtonModule,
-    TagModule,
-    CardModule,
-    DropdownModule,
-    ConfirmDialogModule,
-    ToastModule,
+    Button,
+    Tag,
+    Card,
+    Select,
+    ConfirmDialog,
+    Toast,
     LoadingComponent,
     ErrorMessageComponent,
   ],
@@ -47,7 +47,7 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
 
       <!-- Filtros -->
       <div class="filters-row">
-        <p-dropdown
+        <p-select
           [(ngModel)]="filtroPeriodo"
           [options]="periodos"
           placeholder="Filtrar por período"
