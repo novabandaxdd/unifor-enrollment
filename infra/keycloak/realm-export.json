@@ -1,0 +1,222 @@
+{
+  "id": "unifor",
+  "realm": "unifor",
+  "displayName": "Unifor Enrollment",
+  "enabled": true,
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": false,
+  "sslRequired": "none",
+  "accessTokenLifespan": 3600,
+  "roles": {
+    "realm": [
+      {
+        "id": "aaaaaaaa-0001-0001-0001-000000000001",
+        "name": "ALUNO",
+        "description": "Student role — can browse and enroll in available classes",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "unifor"
+      },
+      {
+        "id": "aaaaaaaa-0001-0001-0001-000000000002",
+        "name": "COORDENADOR",
+        "description": "Coordinator role — can manage curriculum matrix",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "unifor"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "id": "bbbbbbbb-0002-0002-0002-000000000001",
+      "clientId": "unifor-backend",
+      "name": "Unifor Backend",
+      "description": "Confidential bearer-only client for the Quarkus backend",
+      "enabled": true,
+      "publicClient": false,
+      "bearerOnly": true,
+      "serviceAccountsEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "protocol": "openid-connect",
+      "secret": "unifor-backend-secret",
+      "redirectUris": ["http://localhost:8080/*"],
+      "webOrigins": ["http://localhost:8080"],
+      "defaultClientScopes": ["web-origins", "profile", "roles", "email"],
+      "optionalClientScopes": ["address", "phone", "offline_access", "microprofile-jwt"]
+    },
+    {
+      "id": "bbbbbbbb-0002-0002-0002-000000000002",
+      "clientId": "unifor-frontend",
+      "name": "Unifor Frontend",
+      "description": "Public PKCE client for the Angular SPA",
+      "enabled": true,
+      "publicClient": true,
+      "bearerOnly": false,
+      "serviceAccountsEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "redirectUris": ["http://localhost:4200/*"],
+      "webOrigins": ["http://localhost:4200"],
+      "defaultClientScopes": ["web-origins", "profile", "roles", "email"],
+      "optionalClientScopes": ["address", "phone", "offline_access", "microprofile-jwt"]
+    }
+  ],
+  "users": [
+    {
+      "id": "cccccccc-0003-0003-0003-000000000001",
+      "username": "coord.ana@unifor.br",
+      "email": "coord.ana@unifor.br",
+      "firstName": "Ana",
+      "lastName": "Coordenadora",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "unifor123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["COORDENADOR"],
+      "attributes": {}
+    },
+    {
+      "id": "cccccccc-0003-0003-0003-000000000002",
+      "username": "coord.bruno@unifor.br",
+      "email": "coord.bruno@unifor.br",
+      "firstName": "Bruno",
+      "lastName": "Coordenador",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "unifor123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["COORDENADOR"],
+      "attributes": {}
+    },
+    {
+      "id": "cccccccc-0003-0003-0003-000000000003",
+      "username": "coord.carla@unifor.br",
+      "email": "coord.carla@unifor.br",
+      "firstName": "Carla",
+      "lastName": "Coordenadora",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "unifor123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["COORDENADOR"],
+      "attributes": {}
+    },
+    {
+      "id": "dddddddd-0004-0004-0004-000000000001",
+      "username": "aluno.joao@unifor.br",
+      "email": "aluno.joao@unifor.br",
+      "firstName": "João",
+      "lastName": "Aluno",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "unifor123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ALUNO"],
+      "attributes": {}
+    },
+    {
+      "id": "dddddddd-0004-0004-0004-000000000002",
+      "username": "aluno.maria@unifor.br",
+      "email": "aluno.maria@unifor.br",
+      "firstName": "Maria",
+      "lastName": "Aluna",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "unifor123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ALUNO"],
+      "attributes": {}
+    },
+    {
+      "id": "dddddddd-0004-0004-0004-000000000003",
+      "username": "aluno.pedro@unifor.br",
+      "email": "aluno.pedro@unifor.br",
+      "firstName": "Pedro",
+      "lastName": "Aluno",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "unifor123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ALUNO"],
+      "attributes": {}
+    },
+    {
+      "id": "dddddddd-0004-0004-0004-000000000004",
+      "username": "aluno.julia@unifor.br",
+      "email": "aluno.julia@unifor.br",
+      "firstName": "Julia",
+      "lastName": "Aluna",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "unifor123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ALUNO"],
+      "attributes": {}
+    },
+    {
+      "id": "dddddddd-0004-0004-0004-000000000005",
+      "username": "aluno.lucas@unifor.br",
+      "email": "aluno.lucas@unifor.br",
+      "firstName": "Lucas",
+      "lastName": "Aluno",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "unifor123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ALUNO"],
+      "attributes": {}
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "name": "unifor-enrollment-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nx serve enrollment-app",
+    "build": "nx build enrollment-app --configuration=production",
+    "test": "nx test enrollment-app",
+    "lint": "nx lint enrollment-app",
+    "nx": "nx"
+  },
+  "dependencies": {
+    "@angular/animations": "20.3.30",
+    "@angular/cdk": "20.2.14",
+    "@angular/common": "20.3.30",
+    "@angular/compiler": "20.3.30",
+    "@angular/core": "20.3.30",
+    "@angular/forms": "20.3.30",
+    "@angular/platform-browser": "20.3.30",
+    "@angular/platform-browser-dynamic": "20.3.30",
+    "@angular/router": "20.3.30",
+    "@ngrx/operators": "20.1.0",
+    "@ngrx/signals": "20.1.0",
+    "@primeng/themes": "20.4.0",
+    "keycloak-angular": "20.1.0",
+    "keycloak-js": "26.2.0",
+    "primeng": "20.4.0",
+    "primeicons": "7.0.0",
+    "rxjs": "7.8.2",
+    "tslib": "2.8.1",
+    "zone.js": "0.15.0"
+  },
+  "devDependencies": {
+    "@angular/build": "20.3.13",
+    "@angular/cli": "20.3.13",
+    "@angular/compiler-cli": "20.3.30",
+    "@nx/angular": "20.8.0",
+    "@nx/eslint": "20.8.0",
+    "@nx/eslint-plugin": "20.8.0",
+    "@nx/jest": "20.8.0",
+    "@nx/workspace": "20.8.0",
+    "@types/node": "20.17.50",
+    "eslint": "9.28.0",
+    "jest": "29.7.0",
+    "jest-environment-jsdom": "29.7.0",
+    "nx": "20.8.0",
+    "ts-jest": "29.3.4",
+    "typescript": "5.8.3"
+  }
+}
