@@ -29,7 +29,10 @@ cd unifor-enrollment
 docker compose up --build
 ```
 
-All four services will start in the correct order (postgres → keycloak → backend → frontend).
+All four services start in the correct dependency order:
+`postgres` → `keycloak` → `backend` → `frontend`
+
+Wait for the log line `Quarkus ... started in` before accessing the app.
 
 ---
 
@@ -52,21 +55,83 @@ All users share the password: **`unifor123`**
 
 ### Coordinators (`COORDENADOR` role)
 
-| Name | Email |
-|---|---|
-| Ana Coordenadora | coord.ana@unifor.br |
-| Bruno Coordenador | coord.bruno@unifor.br |
-| Carla Coordenadora | coord.carla@unifor.br |
+| Name | Username / Email | Password |
+|---|---|---|
+| Ana Coordenadora | coord.ana@unifor.br | unifor123 |
+| Bruno Coordenador | coord.bruno@unifor.br | unifor123 |
+| Carla Coordenadora | coord.carla@unifor.br | unifor123 |
 
 ### Students (`ALUNO` role)
 
-| Name | Email |
+| Name | Username / Email | Password |
+|---|---|---|
+| João Aluno | aluno.joao@unifor.br | unifor123 |
+| Maria Aluna | aluno.maria@unifor.br | unifor123 |
+| Pedro Aluno | aluno.pedro@unifor.br | unifor123 |
+| Julia Aluna | aluno.julia@unifor.br | unifor123 |
+| Lucas Aluno | aluno.lucas@unifor.br | unifor123 |
+
+---
+
+## Endpoints da API
+
+Swagger UI interativo: **http://localhost:8080/q/swagger-ui**
+
+| Método | Endpoint | Role | Descrição |
+|---|---|---|---|
+| `GET` | `/api/v1/matriz` | COORDENADOR | Listar aulas da matriz |
+| `POST` | `/api/v1/matriz` | COORDENADOR | Criar nova aula na matriz |
+| `PATCH` | `/api/v1/matriz/{id}` | COORDENADOR | Editar aula |
+| `DELETE` | `/api/v1/matriz/{id}` | COORDENADOR | Soft-delete de aula |
+| `GET` | `/api/v1/matriz/disponiveis` | ALUNO | Aulas disponíveis para o curso do aluno |
+| `GET` | `/api/v1/matricula/minhas` | ALUNO | Matrículas ativas do aluno |
+| `POST` | `/api/v1/matricula` | ALUNO | Realizar matrícula |
+| `DELETE` | `/api/v1/matricula/{id}` | ALUNO | Cancelar matrícula |
+
+---
+
+## Testando a Aplicação
+
+### Fluxo do Coordenador
+
+1. Acesse http://localhost:4200
+2. Faça login com `coord.ana@unifor.br` / `unifor123`
+3. Navegue até **Matriz Curricular** → visualize as aulas cadastradas
+4. Clique em **Nova Aula** → preencha disciplina, professor, horário e cursos autorizados → salve
+5. Verifique que a nova aula aparece na listagem com vagas disponíveis
+6. Clique em **Editar** para alterar professor ou horário
+7. Tente **Excluir** uma aula que já tem alunos matriculados → deve retornar erro 409
+
+### Fluxo do Aluno
+
+1. Acesse http://localhost:4200 (em outra aba ou após logout do coordenador)
+2. Faça login com `aluno.joao@unifor.br` / `unifor123`
+3. Navegue até **Aulas Disponíveis** → veja as aulas do seu curso com vagas
+4. Clique em **Matricular** em uma aula → a linha desaparece da listagem
+5. Vá para **Minhas Matrículas** → a nova matrícula aparece na tabela
+6. Clique em **Cancelar** para desfazer a matrícula
+
+### Cenários de Erro
+
+| Cenário | Resposta esperada |
 |---|---|
-| João Aluno | aluno.joao@unifor.br |
-| Maria Aluna | aluno.maria@unifor.br |
-| Pedro Aluno | aluno.pedro@unifor.br |
-| Julia Aluna | aluno.julia@unifor.br |
-| Lucas Aluno | aluno.lucas@unifor.br |
+| Matricular em aula sem vaga | Toast de erro: "Sem vagas disponíveis" (HTTP 409) |
+| Conflito de horário | Toast de erro: "Conflito de horário" (HTTP 409) |
+| Curso não autorizado para a aula | Toast de erro com mensagem do backend (HTTP 409) |
+
+---
+
+## Executando Testes Unitários
+
+```bash
+# Backend — testes JUnit com Quarkus Test
+cd backend
+./mvnw test
+
+# Relatório de cobertura (JaCoCo)
+./mvnw verify
+open target/site/jacoco/index.html
+```
 
 ---
 
@@ -99,7 +164,7 @@ Key design decisions:
 - **Panache Active Record** pattern for minimal persistence boilerplate.
 - **Nx monorepo** with shared libs (`shared-ui`, `shared-data-access`, `shared-auth`) for clean separation of concerns.
 
-See [`docs/interview-notes.md`](docs/interview-notes.md) for full architecture rationale (created in Phase 6).
+See [`docs/interview-notes.md`](docs/interview-notes.md) for full architecture rationale.
 
 ---
 
@@ -111,9 +176,14 @@ unifor-enrollment/
 │   ├── src/
 │   ├── pom.xml
 │   └── Dockerfile
+├── docs/
+│   └── interview-notes.md     # Architecture decisions (for interview)
 ├── frontend/                  # Nx Angular 20 workspace
 │   ├── apps/enrollment-app/
 │   ├── libs/
+│   │   ├── shared-auth/       # Keycloak guards + AuthService
+│   │   ├── shared-data-access/ # API services + NgRx Signal Stores
+│   │   └── shared-ui/         # Reusable PrimeNG wrappers
 │   └── Dockerfile
 ├── infra/
 │   ├── keycloak/realm-export.json

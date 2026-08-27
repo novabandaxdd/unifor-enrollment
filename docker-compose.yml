@@ -64,6 +64,10 @@ services:
       QUARKUS_OIDC_CLIENT_ID: unifor-backend
       QUARKUS_OIDC_CREDENTIALS_SECRET: unifor-backend-secret
       QUARKUS_OIDC_TLS_VERIFICATION: none
+      # CORS
+      QUARKUS_HTTP_CORS: "true"
+      QUARKUS_HTTP_CORS_ORIGINS: http://localhost:4200
+      QUARKUS_HTTP_CORS_METHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
       # Logging
       QUARKUS_LOG_LEVEL: INFO
     depends_on:
