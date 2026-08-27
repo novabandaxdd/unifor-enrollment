@@ -5,19 +5,18 @@ import io.quarkus.hibernate.orm.panache.kotlin.PanacheEntityBase
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import org.hibernate.annotations.GenericGenerator
 import java.time.LocalTime
 import java.util.UUID
 
 @Entity
 @Table(name = "horario")
-class Horario : PanacheEntityBase() {
+class Horario : PanacheEntityBase {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy = GenerationType.UUID)
     lateinit var id: UUID
 
     @Column(name = "dia_semana")

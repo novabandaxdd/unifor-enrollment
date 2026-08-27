@@ -48,7 +48,7 @@
       <artifactId>kotlin-stdlib-jdk8</artifactId>
     </dependency>
 
-    <!-- REST -->
+    <!-- REST — RESTEasy Reactive (Quarkus 3.x) -->
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-resteasy-reactive</artifactId>
@@ -56,6 +56,12 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
+    </dependency>
+
+    <!-- Validation (jakarta.validation.* / @Valid / @NotNull etc.) -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-hibernate-validator</artifactId>
     </dependency>
 
     <!-- Persistence -->
@@ -115,6 +121,13 @@
       <artifactId>quarkus-test-security</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- Mockito for unit tests -->
+    <dependency>
+      <groupId>org.mockito.kotlin</groupId>
+      <artifactId>mockito-kotlin</artifactId>
+      <version>5.4.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -139,7 +152,7 @@
         </executions>
       </plugin>
 
-      <!-- Kotlin Compiler -->
+      <!-- Kotlin Compiler with all-open + no-arg for JPA entities -->
       <plugin>
         <groupId>org.jetbrains.kotlin</groupId>
         <artifactId>kotlin-maven-plugin</artifactId>
@@ -165,9 +178,16 @@
           </execution>
         </executions>
         <dependencies>
+          <!-- all-open: makes @Entity/@ApplicationScoped classes open (needed by proxying) -->
           <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-maven-allopen</artifactId>
+            <version>${kotlin.version}</version>
+          </dependency>
+          <!-- no-arg: generates no-arg constructor for @Entity classes (required by JPA) -->
+          <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-maven-noarg</artifactId>
             <version>${kotlin.version}</version>
           </dependency>
         </dependencies>
@@ -176,14 +196,20 @@
           <javaParameters>true</javaParameters>
           <compilerPlugins>
             <plugin>all-open</plugin>
+            <plugin>no-arg</plugin>
           </compilerPlugins>
           <pluginOptions>
+            <!-- all-open annotations -->
             <option>all-open:annotation=jakarta.ws.rs.Path</option>
             <option>all-open:annotation=jakarta.enterprise.context.ApplicationScoped</option>
             <option>all-open:annotation=jakarta.enterprise.context.RequestScoped</option>
             <option>all-open:annotation=io.quarkus.test.junit.QuarkusTest</option>
             <option>all-open:annotation=jakarta.persistence.Entity</option>
             <option>all-open:annotation=jakarta.persistence.MappedSuperclass</option>
+            <!-- no-arg annotations: JPA requires a no-arg constructor on @Entity classes -->
+            <option>no-arg:annotation=jakarta.persistence.Entity</option>
+            <option>no-arg:annotation=jakarta.persistence.MappedSuperclass</option>
+            <option>no-arg:annotation=jakarta.persistence.Embeddable</option>
           </pluginOptions>
         </configuration>
       </plugin>
