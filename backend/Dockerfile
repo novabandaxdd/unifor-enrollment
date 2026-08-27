@@ -1,7 +1,7 @@
 # ============================================================
 # Multi-stage Dockerfile for the Quarkus backend
 # Stage 1: Build the JAR with Maven
-# Stage 2: Run with the quarkus-micro-image (JVM mode)
+# Stage 2: Run with JRE (JVM mode)
 # ============================================================
 
 # -------------------------------------------------------------------
@@ -9,31 +9,36 @@
 # -------------------------------------------------------------------
 FROM eclipse-temurin:21-jdk-alpine AS build
 
+# Install Maven directly (no wrapper dependency)
+RUN apk add --no-cache curl && \
+    curl -fsSL https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz \
+    | tar -xzC /opt && \
+    ln -s /opt/apache-maven-3.9.9/bin/mvn /usr/local/bin/mvn
+
 WORKDIR /app
 
-# Copy Maven wrapper and POM first (layer cache for dependency download)
-COPY .mvn/ .mvn/
-COPY mvnw pom.xml ./
+# Copy POM first for dependency layer caching
+COPY pom.xml ./
 
-# Download dependencies in a separate layer
-RUN chmod +x mvnw && ./mvnw dependency:go-offline -q
+# Download dependencies
+RUN mvn dependency:go-offline -q
 
-# Copy sources and build the uber-jar (fast-jar packaging)
+# Copy sources and build
 COPY src/ src/
-RUN ./mvnw package -DskipTests -q
+RUN mvn package -DskipTests -q
 
 # -------------------------------------------------------------------
-# Stage 2 — Runtime (quarkus-micro-image equivalent via distroless)
+# Stage 2 — Runtime
 # -------------------------------------------------------------------
 FROM eclipse-temurin:21-jre-alpine AS runtime
 
 WORKDIR /deployments
 
 # Quarkus fast-jar layout
-COPY --from=build /app/target/quarkus-app/lib/           lib/
-COPY --from=build /app/target/quarkus-app/*.jar          ./
-COPY --from=build /app/target/quarkus-app/app/           app/
-COPY --from=build /app/target/quarkus-app/quarkus/       quarkus/
+COPY --from=build /app/target/quarkus-app/lib/       lib/
+COPY --from=build /app/target/quarkus-app/*.jar       ./
+COPY --from=build /app/target/quarkus-app/app/        app/
+COPY --from=build /app/target/quarkus-app/quarkus/    quarkus/
 
 EXPOSE 8080
 
