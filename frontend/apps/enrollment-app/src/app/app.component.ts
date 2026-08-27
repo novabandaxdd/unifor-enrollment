@@ -1,13 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { MenubarModule } from 'primeng/menubar';
+import { Button } from 'primeng/button';
 import { AuthService } from '@unifor/shared-auth';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, ButtonModule, MenubarModule],
+  imports: [RouterOutlet, RouterLink, Button],
   template: `
     <nav class="navbar">
       <div class="navbar-brand">
