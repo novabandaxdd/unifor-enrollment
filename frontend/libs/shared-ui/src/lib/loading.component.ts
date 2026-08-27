@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ProgressSpinner } from 'primeng/progressspinner';
 
 @Component({
   selector: 'unifor-loading',
   standalone: true,
-  imports: [ProgressSpinnerModule],
+  imports: [ProgressSpinner],
   template: `
     <div class="loading-container">
       <p-progressSpinner
@@ -14,15 +14,13 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
       />
     </div>
   `,
-  styles: [
-    `
-      .loading-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem;
-      }
-    `,
-  ],
+  styles: [`
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+  `],
 })
 export class LoadingComponent {}
