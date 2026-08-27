@@ -7,7 +7,11 @@ import { AulaResponse, MatriculaResponse } from './models';
 @Injectable({ providedIn: 'root' })
 export class MatriculaApiService {
   private http = inject(HttpClient);
-  private baseUrl = inject(ENVIRONMENT).apiUrl;
+  private env = inject(ENVIRONMENT);
+
+  private get baseUrl(): string {
+    return this.env.apiUrl;
+  }
 
   getMinhas(): Observable<MatriculaResponse[]> {
     return this.http.get<MatriculaResponse[]>(
