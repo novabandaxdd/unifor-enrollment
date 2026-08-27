@@ -1,32 +1,33 @@
 import { Injectable, inject } from '@angular/core';
-import { Keycloak } from 'keycloak-angular';
+import { KeycloakService } from 'keycloak-angular';
 import { from, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private keycloak = inject(Keycloak);
+  private keycloak = inject(KeycloakService);
 
   getToken(): Observable<string> {
     return from(this.keycloak.getToken());
   }
 
   getUserRoles(): string[] {
-    return this.keycloak.getRealmRoles() ?? [];
+    return this.keycloak.getUserRoles() ?? [];
   }
 
   isCoordinator(): boolean {
-    return this.keycloak.hasRealmRole('COORDENADOR');
+    return this.keycloak.isUserInRole('COORDENADOR');
   }
 
   isStudent(): boolean {
-    return this.keycloak.hasRealmRole('ALUNO');
+    return this.keycloak.isUserInRole('ALUNO');
   }
 
   getUsername(): string {
-    return this.keycloak.tokenParsed?.['preferred_username'] ?? '';
+    const profile = this.keycloak.getKeycloakInstance()?.tokenParsed;
+    return (profile?.['preferred_username'] as string) ?? '';
   }
 
   logout(): void {
-    this.keycloak.logout({ redirectUri: window.location.origin });
+    this.keycloak.logout(window.location.origin);
   }
 }
