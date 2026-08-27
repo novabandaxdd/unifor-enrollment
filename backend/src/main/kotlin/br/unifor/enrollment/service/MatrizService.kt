@@ -9,11 +9,8 @@ import br.unifor.enrollment.domain.Matricula
 import br.unifor.enrollment.domain.Professor
 import br.unifor.enrollment.dto.AulaResponse
 import br.unifor.enrollment.dto.CriarAulaRequest
-import br.unifor.enrollment.dto.CursoInfo
-import br.unifor.enrollment.dto.DisciplinaInfo
 import br.unifor.enrollment.dto.EditarAulaRequest
-import br.unifor.enrollment.dto.HorarioInfo
-import br.unifor.enrollment.dto.ProfessorInfo
+import br.unifor.enrollment.dto.toAulaResponse
 import br.unifor.enrollment.exception.AcessoNegadoException
 import br.unifor.enrollment.exception.EntidadeNaoEncontradaException
 import br.unifor.enrollment.exception.RegraDeNegocioException
@@ -53,7 +50,7 @@ class MatrizService {
             this.cursosAutorizados = cursos.toMutableList()
         }
         aula.persist()
-        return aula.toResponse()
+        return aula.toAulaResponse()
     }
 
     fun listarAulas(
@@ -87,7 +84,7 @@ class MatrizService {
             params.add(horarioId)
         }
 
-        return AulaMatriz.find(query, *params.toTypedArray()).list().map { it.toResponse() }
+        return AulaMatriz.find(query, *params.toTypedArray()).list().map { it.toAulaResponse() }
     }
 
     @Transactional
@@ -110,7 +107,7 @@ class MatrizService {
             }.toMutableList()
         }
 
-        return aula.toResponse()
+        return aula.toAulaResponse()
     }
 
     @Transactional
@@ -126,30 +123,3 @@ class MatrizService {
     }
 }
 
-private fun AulaMatriz.toResponse(): AulaResponse {
-    val vagasDisponiveis = maxAlunos - Matricula.count("aulaMatriz = ?1 and ativo = true", this)
-    return AulaResponse(
-        id = id,
-        disciplina = DisciplinaInfo(
-            id = disciplina.id,
-            nome = disciplina.nome,
-            cargaHoraria = disciplina.cargaHoraria
-        ),
-        professor = ProfessorInfo(
-            id = professor.id,
-            nome = professor.nome,
-            email = professor.email
-        ),
-        horario = HorarioInfo(
-            id = horario.id,
-            diaSemana = horario.diaSemana,
-            horaInicio = horario.horaInicio.toString(),
-            horaFim = horario.horaFim.toString(),
-            periodo = horario.periodo
-        ),
-        cursosAutorizados = cursosAutorizados.map { CursoInfo(id = it.id, nome = it.nome) },
-        maxAlunos = maxAlunos,
-        vagasDisponiveis = vagasDisponiveis,
-        ativo = ativo
-    )
-}
