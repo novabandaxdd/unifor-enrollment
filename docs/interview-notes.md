@@ -1,378 +1,391 @@
 # Notas Técnicas para Entrevista — Sistema de Matrícula Unifor
 
-> Documento de suporte para apresentação do desafio técnico.
-> Registra as decisões de arquitetura, trade-offs e pontos de melhoria futura.
+> Documento de suporte para a apresentação técnica do desafio.
+> Registra decisões de arquitetura, trade-offs e pontos de melhoria futura.
 
 ---
 
 ## 1. Visão Geral da Solução
 
-O sistema foi construído como um monorepo com separação explícita entre backend e frontend, conforme exigido no desafio.
+### Diagrama de Arquitetura Geral
 
 ```
-Browser (Angular 20 SPA)
-     │  Authorization Code + PKCE
-     ▼
-Keycloak 24  (emite JWT com realm_access.roles)
-     │
-     │  Bearer token em cada request
-     ▼
-Quarkus 3.20 REST API  (valida JWT, verifica roles via @RolesAllowed)
-     │
-     ▼
-PostgreSQL 16  (transações ACID, pessimistic lock nas matrículas)
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        Docker Compose Network                           │
+│                                                                         │
+│  ┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐  │
+│  │  Angular 20 SPA  │    │   Keycloak 24    │    │  Quarkus 3.20    │  │
+│  │  (nginx :80)     │    │   (:8080)        │    │  REST API (:8080)│  │
+│  │                  │    │                  │    │                  │  │
+│  │  Nx monorepo     │◄──►│  Realm: unifor   │◄──►│  Kotlin 2.0      │  │
+│  │  NgRx Signals    │    │  PKCE + S256     │    │  @RolesAllowed   │  │
+│  │  PrimeNG 20      │    │  Roles: ALUNO    │    │  Panache ORM     │  │
+│  │                  │    │         COORD    │    │  OIDC JWT valida │  │
+│  └──────────────────┘    └──────────────────┘    └────────┬─────────┘  │
+│         :4200                    :8180                     │            │
+│                                                            ▼            │
+│                                                  ┌──────────────────┐  │
+│                                                  │  PostgreSQL 16   │  │
+│                                                  │  (:5432)         │  │
+│                                                  │  unifor_db       │  │
+│                                                  │  init.sql seed   │  │
+│                                                  └──────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Fluxo completo de uma matrícula:**
-1. Aluno autentica no Keycloak via PKCE → recebe `access_token` JWT com `realm_access.roles: ["ALUNO"]`
-2. Angular envia `POST /api/v1/matricula` com `Authorization: Bearer <token>`
-3. Quarkus verifica assinatura do JWT e extrai o role `ALUNO`
-4. `MatriculaService` abre transação, aplica `PESSIMISTIC_WRITE` na `AulaMatriz`, valida regras de negócio e persiste a matrícula
-5. Resposta `201 Created` retorna para o frontend; o NgRx Signal Store atualiza o estado local sem nova requisição de listagem
+### Fluxo de Autenticação (PKCE)
+
+```
+Aluno/Coord                Angular SPA              Keycloak              Backend
+     │                         │                        │                    │
+     │── click em app ─────────►│                        │                    │
+     │                         │──── redirect ──────────►│                    │
+     │◄──────────── login form ─┤                        │                    │
+     │── credenciais ──────────►│                        │                    │
+     │                         │◄── code + PKCE ─────────┤                    │
+     │                         │──── code + verifier ───►│                    │
+     │                         │◄── access_token JWT ────┤                    │
+     │                         │                        │                    │
+     │                         │── GET /api/v1/matriz ──────────────────────►│
+     │                         │   Authorization: Bearer <JWT>               │
+     │                         │◄─────────────── 200 OK ─────────────────────┤
+```
+
+### Fluxo de Matrícula (Critical Path)
+
+```
+Aluno           Angular (MatriculaStore)      Backend (MatriculaService)    PostgreSQL
+  │                     │                            │                          │
+  │── Matricular ───────►│                            │                          │
+  │                     │── POST /matricula ─────────►│                          │
+  │                     │                            │── BEGIN TRANSACTION ─────►│
+  │                     │                            │── SELECT FOR UPDATE ──────►│ ← PESSIMISTIC_WRITE
+  │                     │                            │◄─ AulaMatriz locked ───────┤
+  │                     │                            │── VALIDATE vagas          │
+  │                     │                            │── VALIDATE curso          │
+  │                     │                            │── VALIDATE horário        │
+  │                     │                            │── INSERT matricula ───────►│
+  │                     │                            │── COMMIT ─────────────────►│
+  │                     │◄─ 201 Created ─────────────┤                          │
+  │◄─ toast success ────┤                            │                          │
+```
 
 ---
 
 ## 2. Decisões de Backend
 
-### Kotlin 2.0 + Quarkus 3.20
+### Por que Kotlin 2.0 + Quarkus 3.20?
 
-**Por que Kotlin em vez de Java?**
-- **Null-safety em tempo de compilação:** `NullPointerException` são capturados pelo compilador, não em runtime. Em um sistema de matrículas onde dados de alunos e aulas se cruzam, isso elimina uma classe inteira de bugs.
-- **Data classes:** eliminam o boilerplate de DTOs (sem getters/setters/equals/hashCode manuais). `data class MatricularRequest(val aulaMatrizId: String)` é um DTO completo.
-- **Coroutines:** preparado para operações assíncronas sem callback hell, se o projeto evoluir para endpoints suspensos.
+**Kotlin vs Java:**
+- **Null-safety em tempo de compilação:** elimina `NullPointerException` — crítico em um sistema com múltiplos relacionamentos entre entidades
+- **Data classes:** `data class CriarAulaRequest(val disciplinaId: UUID, ...)` é um DTO completo sem boilerplate
+- **Extension functions:** `fun AulaMatriz.toAulaResponse()` — mantém lógica de mapeamento no local correto
+- **Companion objects + PanacheCompanionBase:** `AulaMatriz.findById(id)` é idiomático e seguro
 
-**Por que Quarkus?**
-- Startup sub-segundo em dev mode — `./mvnw quarkus:dev` recarrega em milissegundos
-- Hot Reload automático sem reiniciar a JVM
-- Panache já é Kotlin-native (sem adaptações extras)
-- OIDC declarativo: apenas `quarkus.oidc.*` no `application.properties` e o framework trata toda a validação JWT
+**Quarkus vs Spring Boot:**
+- Startup sub-segundo em dev (`quarkus:dev` recarrega em milissegundos)
+- OIDC **declarativo**: `quarkus.oidc.auth-server-url=...` resolve toda a validação JWT sem código
+- Native image (GraalVM) como opção futura sem mudança de código
+- Panache já é Kotlin-native com PanacheCompanionBase
 
-### Panache Active Record vs Repository Pattern
-
-**Decisão: Active Record**
-
-Para este domínio de tamanho médio, o Active Record é mais legível:
+### Pessimistic Locking na Matrícula
 
 ```kotlin
-// Active Record — direto
-val aulas = AulaMatriz.find("coordenador.keycloakId = ?1 and ativo = true", id).list<AulaMatriz>()
-
-// Repository — mais verbose, mas mais testável em isolamento
-aulaMatrizRepository.findByCoordenaorKeycloakIdAndAtivo(id, true)
+// MatriculaService.kt — linha crítica
+val aulaMatriz = em.find(AulaMatriz::class.java, id, LockModeType.PESSIMISTIC_WRITE)
 ```
 
-**Trade-off reconhecido:** Para projetos maiores ou que exijam mock do repositório em testes unitários sem banco, o Repository Pattern seria preferível. Para este desafio, o Active Record reduz boilerplate sem prejuízo de clareza.
+**Por que PESSIMISTIC_WRITE e não optimistic locking?**
 
-### Controle de Concorrência com Pessimistic Lock
+Em um cenário de matrícula com múltiplos alunos concorrentes, o optimistic locking geraria muitos `OptimisticLockException` e exigiria retry no cliente. O pessimistic locking **garante que apenas um aluno por vez** passa pela validação de vagas, eliminando race conditions sem complexidade extra no frontend.
 
-**Cenário:** dois alunos tentam a última vaga simultaneamente.
+**Sequência dentro da transação:**
+1. `PESSIMISTIC_WRITE` → bloqueia a linha `aula_matriz`
+2. Verifica vagas: `COUNT(matricula WHERE ativo=true)`
+3. Verifica curso autorizado
+4. Verifica choque de horário (query JPQL com `horaInicio < :horaFim AND horaFim > :horaInicio`)
+5. `INSERT matricula` → commit libera o lock
 
-**Problema sem lock:**
+### Separação de Camadas
+
 ```
-Thread A: lê 1 vaga disponível ✓
-Thread B: lê 1 vaga disponível ✓
-Thread A: insere matrícula (vagas = 0)
-Thread B: insere matrícula (vagas = -1) ← DOUBLE BOOKING!
+resource/  ← HTTP + security context → delega para service
+service/   ← regras de negócio + transações
+domain/    ← entidades JPA + Active Record queries
+dto/       ← request/response + extension mappers
+exception/ ← custom exceptions + @Provider mappers
 ```
-
-**Solução implementada:**
-```kotlin
-@Transactional
-fun matricular(request: MatricularRequest, keycloakId: String): MatriculaResponse {
-    val aluno = Aluno.find("keycloakId", keycloakId).firstResult<Aluno>()
-        ?: throw NotFoundException("Aluno não encontrado")
-
-    // Pessimistic Write: emite SELECT ... FOR UPDATE no banco
-    // Thread B fica bloqueada aqui até Thread A commitar
-    val aulaMatriz = em.find(AulaMatriz::class.java, request.aulaMatrizId, LockModeType.PESSIMISTIC_WRITE)
-        ?: throw NotFoundException("Aula não encontrada")
-
-    // Quando Thread B desbloqueia, revalida — agora não há mais vaga
-    val vagasOcupadas = Matricula.count("aulaMatriz = ?1 and ativo = true", aulaMatriz)
-    if (vagasOcupadas >= aulaMatriz.maxAlunos) {
-        throw ConflictException("Sem vagas disponíveis")
-    }
-
-    // ... demais validações e persistência
-}
-```
-
-**Por que Pessimistic e não Optimistic (`@Version`)?**
-Matrículas têm alta contenção (muitos alunos, poucas vagas). Com Optimistic Lock, o segundo thread sofreria `OptimisticLockException` e precisaria de um retry loop — com alto volume, causaria thundering herd. O Pessimistic Lock serializa as threads no nível do banco, que é mais eficiente nesse cenário.
-
-### Quarkus OIDC Declarativo
-
-Zero código de validação manual de JWT:
-
-```kotlin
-@Path("/api/v1/matricula")
-@RolesAllowed("ALUNO")  // ← Quarkus valida realm_access.roles do JWT automaticamente
-class MatriculaResource {
-    @Context
-    lateinit var identity: SecurityIdentity
-
-    // identity.principal.name == keycloakId (sub do JWT)
-}
-```
-
-O `quarkus-oidc` faz introspection/JWKS automático contra o Keycloak. Não há código de parsing de token no projeto.
 
 ### Soft Delete
 
-Aulas e matrículas usam `ativo = false` em vez de `DELETE` físico. Isso:
-- Preserva o histórico de matrículas de alunos mesmo após a aula ser removida da grade
-- Permite auditoria futura
-- Evita violações de foreign key
+```sql
+-- aula_matriz.ativo = false (não remove do banco)
+-- matricula.ativo = false  (cancelamento não destrói histórico)
+```
+Escolha intencional: histórico acadêmico não pode ser apagado fisicamente. Auditoria futura e relatórios dependem desse dado.
 
 ---
 
 ## 3. Decisões de Frontend
 
-### Angular 20 + Standalone Components
+### Angular 20 + Nx Monorepo
 
-O Angular 20 aboliu NgModules como conceito obrigatório. Cada componente declara suas próprias dependências:
-
-```typescript
-@Component({
-  standalone: true,
-  imports: [TableModule, ButtonModule, TagModule],  // ← sem NgModule intermediário
-  template: `...`
-})
-export class AulasDisponiveisPage { }
+```
+frontend/
+├── apps/enrollment-app/          ← aplicação principal
+└── libs/
+    ├── shared-auth/               ← authGuard, roleGuard, AuthService
+    ├── shared-data-access/        ← NgRx Signal Stores, API Services, models
+    └── shared-ui/                 ← LoadingComponent, ErrorMessageComponent
 ```
 
-**Benefícios:**
-- Tree-shaking granular: apenas os módulos usados vão para o bundle
-- Lazy loading por componente individual (não por módulo)
-- Menos camadas de abstração para entender o código
+**Nx vs estrutura flat Angular:**
+- **Boundary enforcement:** libs/shared-auth não pode importar libs/shared-data-access sem declarar explicitamente
+- **Caching de build:** `nx build` recompila apenas libs alteradas
+- **Separação de responsabilidades forçada pelo compilador:** não é só convenção, é enforced pelo module boundary
 
-### NgRx Signal Store (não NgRx clássico)
+### NgRx Signal Store
 
-**Por que Signal Store em vez do NgRx tradicional?**
-
-| Aspecto | NgRx Clássico | NgRx Signal Store |
-|---|---|---|
-| Boilerplate | Actions + Reducers + Effects (3 arquivos) | Um único `signalStore()` |
-| Change detection | Zone.js, re-render do componente inteiro | Signal granular — só renderiza o que mudou |
-| Tipo do estado | `Observable<T>` | `Signal<T>` — leitura síncrona com `()` |
-| Curva de aprendizado | Alta | Baixa |
-| Async side-effects | Effects com `createEffect` | `rxMethod` inline no store |
-
-O Signal Store é a direção que o ecossistema Angular está tomando em 2024-2025, e demonstra conhecimento da evolução do framework.
-
-**Padrão usado:**
 ```typescript
-export const MatriculaStore = signalStore(
+// MatrizStore — estado reativo sem boilerplate de Actions/Reducers/Effects
+export const MatrizStore = signalStore(
   { providedIn: 'root' },
-  withState({ minhasMatriculas: [], loading: false, error: null }),
-  withMethods((store, api = inject(MatriculaApiService)) => ({
-    matricular: rxMethod<string>(pipe(
+  withState(initialState),
+  withMethods((store, api = inject(MatrizApiService)) => ({
+    loadAulas: rxMethod<void>(pipe(
       tap(() => patchState(store, { loading: true })),
-      switchMap(id => api.matricular(id).pipe(
+      switchMap(() => api.listar().pipe(
         tapResponse(
-          matricula => patchState(store, state => ({
-            minhasMatriculas: [...state.minhasMatriculas, matricula],
-            loading: false
-          })),
-          (err: HttpErrorResponse) => patchState(store, {
-            error: err.error?.message ?? 'Erro ao matricular',
-            loading: false
-          })
+          (aulas) => patchState(store, { aulas, loading: false }),
+          () => patchState(store, { error: 'Erro ao carregar', loading: false })
         )
       ))
-    ))
+    )),
   }))
 );
 ```
 
-### RxJS com `rxMethod`
+**Signal Store vs NgRx clássico:**
+- Zero boilerplate de Actions/Reducers: 80% menos código para o mesmo resultado
+- `rxMethod` = ponte entre signals e streams RxJS sem impedir o uso de operadores complexos
+- Integração com `effect()` para reações a estado (toast de sucesso após matrícula)
 
-Para side-effects HTTP, uso `rxMethod` que conecta o mundo Observable ao mundo Signal:
+### Keycloak-Angular v20 — Decisão Técnica Crítica
+
+A versão 20 do `keycloak-angular` **depreciou `KeycloakService`** e migrou para injeção direta do `Keycloak` do `keycloak-js`:
 
 ```typescript
-loadAulasDisponiveis: rxMethod<void>(pipe(
-  tap(() => patchState(store, { loading: true })),
-  switchMap(() => api.getDisponiveis().pipe(
-    tapResponse(data => patchState(store, { aulasDisponiveis: data, loading: false }), ...)
-  ))
-))
+// ❌ ANTES (v17): KeycloakService — NÃO é provido por provideKeycloak()
+const keycloak = inject(KeycloakService);  // NG0201 em runtime!
+
+// ✅ DEPOIS (v20): Keycloak diretamente
+import Keycloak from 'keycloak-js';
+const keycloak = inject(Keycloak);          // Provido por provideKeycloak()
 ```
 
-O `switchMap` cancela requisições anteriores pendentes se uma nova for disparada, evitando race conditions no frontend.
+**Armadilha encontrada:** `withAutoRefreshToken` chama `inject(AutoRefreshTokenService)` internamente. Esse service precisa estar explicitamente nos `providers[]` do `provideKeycloak()`:
 
-### Nx Monorepo com Libs
-
-Separação intencional das libs:
-
-```
-libs/
-├── shared/auth          # Keycloak guards, AuthService
-│                        # ← sem dependências de UI
-├── shared/data-access   # Models, API services, Signal Stores
-│                        # ← sem dependências de UI primitives
-└── shared/ui            # LoadingComponent, ErrorMessageComponent
-                         # ← reutilizável por qualquer app
+```typescript
+provideKeycloak({
+  ...
+  features: [withAutoRefreshToken({ onInactivityTimeout: 'logout' })],
+  providers: [AutoRefreshTokenService, UserActivityService], // ← OBRIGATÓRIO
+})
 ```
 
-**Por que importa:** se o projeto evoluir para dois apps separados (`coordinator-app` e `student-app`), as três libs são reutilizadas sem duplicação. O Nx enforça os limites via `project.json` e recusa imports circulares em build-time.
+### PrimeNG 20 Standalone API
 
----
-
-## 4. Segurança e Controle de Acesso
-
-### Keycloak PKCE para SPA
-
-O fluxo Authorization Code + PKCE é o único seguro para SPAs, pois não expõe `client_secret` no browser:
-
-```
-1. Angular gera code_verifier (random, 128 chars) e code_challenge = SHA256(code_verifier)
-2. Redireciona para Keycloak com code_challenge no URL
-3. Usuário autentica → Keycloak retorna authorization_code
-4. Angular troca code + code_verifier pelo access_token
-5. Keycloak verifica que SHA256(code_verifier) == code_challenge armazenado
-   → Garante que só o browser que iniciou o fluxo recebe o token
-```
-
-### JWT → @RolesAllowed
-
-```
-JWT payload:
-{
-  "sub": "uuid-do-aluno",
-  "realm_access": {
-    "roles": ["ALUNO", "offline_access"]
-  }
-}
-                    ↓  lido pelo Quarkus OIDC
-@RolesAllowed("ALUNO")  ← check automático sem código manual
-```
-
-### Isolamento de Dados por Keycloak ID
-
-- **Coordenador:** só vê suas próprias `AulaMatriz` via `WHERE coordenador.keycloak_id = :sub`
-- **Aluno:** só cancela suas próprias matrículas via verificação `matricula.aluno.keycloakId == identity.principal.name`
-- Nenhum endpoint permite "ver dados de outro usuário" — isolamento em nível de query, não apenas de role
-
----
-
-## 5. Concorrência — Análise Detalhada
-
-**Sequência com Pessimistic Lock (2 threads concorrentes, 1 vaga):**
-
-```
-T=0  Thread A: BEGIN TRANSACTION
-T=0  Thread B: BEGIN TRANSACTION
-T=1  Thread A: SELECT * FROM aula_matriz WHERE id=X FOR UPDATE → adquire lock, vê 1 vaga
-T=1  Thread B: SELECT * FROM aula_matriz WHERE id=X FOR UPDATE → BLOQUEADA no banco
-T=2  Thread A: INSERT INTO matricula → vaga = 0
-T=3  Thread A: COMMIT → lock liberado
-T=3  Thread B: SELECT retorna → vê 0 vagas → lança ConflictException (HTTP 409)
-T=4  Thread B: ROLLBACK
-```
-
-**Boundary de transação:** o lock é mantido do `em.find(..., PESSIMISTIC_WRITE)` até o `COMMIT`. Quarkus garante que o método `@Transactional` inteiro corre em uma única transação.
-
----
-
-## 6. O que Evoluiria com Mais Tempo
-
-### Curto Prazo (próxima sprint)
-- **Optimistic Lock (`@Version`)** nos endpoints de baixa contenção (PATCH de aula pelo coordenador)
-- **Paginação** cursor-based nas listagens de aulas (evita `OFFSET` em tabelas grandes)
-- **Testes E2E** com Playwright — cenários de matrícula e conflito de horário
-
-### Médio Prazo
-- **CI/CD com GitHub Actions:** pipeline build → test → Docker build → push registry → deploy
-- **Circuit Breaker (SmallRye Fault Tolerance):** protege chamadas ao Keycloak em caso de instabilidade
-- **Notificações em tempo real:** WebSocket ou SSE quando vagas são liberadas (aluno na fila de espera)
-
-### Longo Prazo
-- **Separação de apps:** `coordinator-app` e `student-app` como builds Nx separados com PWA
-- **Métricas** com Micrometer/Prometheus + dashboards Grafana
-- **Auditoria completa** com Hibernate Envers (log de quem alterou cada entidade e quando)
-- **Multi-tenant** (suporte a múltiplas instituições no mesmo sistema)
-
----
-
-## 7. Padrões e Boas Práticas Demonstradas
-
-| Prática | Implementado |
+| v19 (module) | v20 (standalone) |
 |---|---|
-| Separação Controller / Service / Repository | ✅ |
-| DTOs distintos de Entities (request/response separados) | ✅ |
-| Tratamento centralizado de erros (GlobalExceptionMapper) | ✅ |
-| Soft Delete para preservar histórico | ✅ |
-| Transações atômicas com lock pessimista | ✅ |
-| Validação no backend (nunca confiar no cliente) | ✅ |
-| Seed data via `import.sql` (não cadastro manual) | ✅ |
-| Docker Compose para reprodutibilidade total do ambiente | ✅ |
-| Standalone Components (Angular 20 idiomático) | ✅ |
-| Signal Store (NgRx moderno, sem boilerplate clássico) | ✅ |
-| Nx libs com boundary enforcement | ✅ |
-| PKCE para SPA (sem client_secret no browser) | ✅ |
-| Isolamento de dados por keycloakId no backend | ✅ |
-| OpenAPI/Swagger gerado automaticamente | ✅ |
+| `DropdownModule` | `Select` (`<p-select>`) |
+| `ButtonModule` | `Button` |
+| `CardModule` | `Card` |
+| `TagModule` | `Tag` |
+| `MultiSelectModule` | `MultiSelect` |
 
 ---
 
-## 8. Troubleshooting do Docker Build — Lições Aprendidas
+## 4. Diagrama de Entidade (ERD)
 
-Durante o processo de build com `docker compose up --build`, três classes de erros foram encontradas e resolvidas. Documentá-las demonstra domínio do ciclo real de desenvolvimento.
-
-### 8.1 `This type does not have a constructor` — Kotlin + JPA
-
-**Causa:** Classes de entidade Kotlin herdam de `PanacheEntityBase` com parênteses (`PanacheEntityBase()`), o que tenta invocar um construtor inexistente em vez de apenas herdar. Além disso, JPA/Hibernate 6 exige um **construtor sem argumentos** em todas as classes `@Entity`, que o Kotlin não gera automaticamente.
-
-**Solução:**
-1. Remover os parênteses: `class Aluno : PanacheEntityBase` (sem `()`)
-2. Adicionar o plugin `kotlin-maven-noarg` no `pom.xml` com `no-arg:annotation=jakarta.persistence.Entity` — gera o construtor sinteticamente sem expô-lo no código-fonte
-
-```xml
-<compilerPlugins>
-  <plugin>all-open</plugin>
-  <plugin>no-arg</plugin>   <!-- novo -->
-</compilerPlugins>
-<pluginOptions>
-  <option>no-arg:annotation=jakarta.persistence.Entity</option>
-</pluginOptions>
 ```
-
-### 8.2 `Unresolved reference 'validation'` — Jakarta Validation ausente
-
-**Causa:** O `pom.xml` não incluía `quarkus-hibernate-validator`, então as anotações `@NotNull`, `@Valid`, `@Min` etc. do pacote `jakarta.validation` não estavam disponíveis em compile time.
-
-**Solução:** Adicionar a dependência:
-```xml
-<dependency>
-  <groupId>io.quarkus</groupId>
-  <artifactId>quarkus-hibernate-validator</artifactId>
-</dependency>
-```
-
-### 8.3 `@Authenticated + @RolesAllowed` — Anotações de segurança conflitantes
-
-**Causa:** O Quarkus Security proíbe o uso combinado de `@Authenticated` e `@RolesAllowed` na mesma classe — são mutuamente exclusivos por design.
-
-**Solução:** Remover `@Authenticated` — `@RolesAllowed("ROLE")` já implica autenticação obrigatória:
-```kotlin
-// ❌ Antes — IllegalStateException em build
-@Authenticated
-@RolesAllowed("COORDENADOR")
-
-// ✅ Depois
-@RolesAllowed("COORDENADOR")
-```
-
-### 8.4 `@GenericGenerator` deprecated no Hibernate 6
-
-**Oportunidade de melhoria** identificada durante o processo: a anotação `@GenericGenerator(strategy = "org.hibernate.id.UUIDGenerator")` foi marcada como deprecated no Hibernate 6 (usado pelo Quarkus 3.x). Migrado para a API nativa do JPA 3.1:
-```kotlin
-// Antes (Hibernate 5 style)
-@GeneratedValue(generator = "UUID")
-@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-
-// Depois (JPA 3.1 nativo)
-@GeneratedValue(strategy = GenerationType.UUID)
+┌─────────────────┐          ┌─────────────────┐
+│     CURSO       │          │   DISCIPLINA    │
+├─────────────────┤          ├─────────────────┤
+│ id UUID PK      │          │ id UUID PK      │
+│ nome            │          │ nome            │
+│ descricao       │          │ carga_horaria   │
+└────────┬────────┘          │ ementa          │
+         │                   └────────┬────────┘
+         │ 1:N                        │ N:1
+         ▼                            ▼
+┌─────────────────┐          ┌─────────────────────────────────┐
+│     ALUNO       │          │         AULA_MATRIZ             │
+├─────────────────┤    N:M   ├─────────────────────────────────┤
+│ id UUID PK      │◄────────►│ id UUID PK                      │
+│ nome            │          │ disciplina_id FK → DISCIPLINA   │
+│ email UNIQUE    │ via       │ professor_id FK → PROFESSOR     │
+│ matricula UNIQUE│ matricula │ horario_id FK → HORARIO         │
+│ keycloak_id     │          │ coordenador_id FK → COORDENADOR │
+│ curso_id FK     │          │ max_alunos                      │
+└────────┬────────┘          │ ativo (soft-delete)             │
+         │                   └──────────┬──────────────────────┘
+         │ 1:N                          │ N:M via AULA_MATRIZ_CURSO
+         ▼                              ▼
+┌─────────────────┐          ┌─────────────────┐
+│   MATRICULA     │          │ AULA_MATRIZ_CURSO│
+├─────────────────┤          ├─────────────────┤
+│ id UUID PK      │          │ aula_matriz_id  │
+│ aluno_id FK     │          │ curso_id        │
+│ aula_matriz_id  │          └─────────────────┘
+│ data_matricula  │
+│ ativo (cancel)  │          ┌─────────────────┐
+│ UNIQUE(aluno,   │          │    PROFESSOR    │
+│   aula_matriz)  │          ├─────────────────┤
+└─────────────────┘          │ id UUID PK      │
+                             │ nome            │
+┌─────────────────┐          │ email UNIQUE    │
+│  COORDENADOR    │          │ especialidade   │
+├─────────────────┤          └─────────────────┘
+│ id UUID PK      │
+│ nome            │          ┌─────────────────┐
+│ email UNIQUE    │          │    HORARIO      │
+│ keycloak_id     │          ├─────────────────┤
+└─────────────────┘          │ id UUID PK      │
+                             │ dia_semana      │
+                             │ hora_inicio     │
+                             │ hora_fim        │
+                             │ periodo         │
+                             └─────────────────┘
 ```
 
 ---
+
+## 5. Controle de Acesso
+
+### Duas Camadas de Segurança
+
+**Camada 1 — Frontend (UX)**
+```typescript
+// app.routes.ts — canActivate com roleGuard
+{ path: 'matriz', canActivate: [authGuard, roleGuard('COORDENADOR')] }
+{ path: 'matricula', canActivate: [authGuard, roleGuard('ALUNO')] }
+```
+- Impede navegação a rotas não autorizadas
+- Oculta links no navbar baseado em `keycloak.realmAccess.roles`
+
+**Camada 2 — Backend (segurança real)**
+```kotlin
+@RolesAllowed("COORDENADOR")  // MatrizResource — valida JWT
+@RolesAllowed("ALUNO")         // MatriculaResource
+
+// + isolamento de dados: coordenador só vê suas aulas
+val coordenador = getCoordenadorByKeycloakId(securityContext.userPrincipal.name)
+return AulaMatriz.find("coordenador = ?1 and ativo = true", coordenador)
+```
+
+**Por que `@RolesAllowed` e não `@Authenticated`?**
+Em Quarkus 3.x, combinar `@Authenticated + @RolesAllowed` lança `IllegalStateException`. Usar apenas `@RolesAllowed` implica autenticação e verifica o role em uma única annotation.
+
+---
+
+## 6. Infraestrutura Docker
+
+### Ordem de Dependências
+
+```yaml
+postgres:   healthcheck (pg_isready)
+keycloak:   depends_on postgres (service_healthy)
+backend:    depends_on postgres (service_healthy) + keycloak (service_started)
+frontend:   depends_on backend
+```
+
+**Por que `restart: unless-stopped` no backend?**
+O Keycloak pode demorar até 30s para importar o realm. O backend inicia rapidamente mas pode receber 503 do OIDC discovery. O `restart: unless-stopped` garante que o backend tenta novamente sem intervenção manual.
+
+### Init.sql vs Hibernate DDL Auto
+
+```yaml
+QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: validate
+QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT: no-file
+```
+
+- `validate`: Hibernate verifica que o schema do banco coincide com as entidades. Se divergir, falha rápido e explícito
+- O schema é criado pelo PostgreSQL `init.sql` (mais controle sobre tipos, constraints, índices)
+- `no-file`: desabilita `import.sql` (funciona apenas em dev profile) — não confundir com `init.sql`
+
+---
+
+## 7. Testes
+
+### Backend — Escolha das Ferramentas
+
+```kotlin
+// MatrizServiceTest.kt — Mockito-Kotlin + JUnit 5
+@Test
+fun `criarAula deve lançar exceção quando disciplina não existe`() {
+    // arrange: mockar Panache estático com mockkStatic
+    whenever(Disciplina.findById(any())).thenReturn(null)
+    // act + assert
+    assertThrows<EntidadeNaoEncontradaException> {
+        matrizService.criarAula(request, keycloakId)
+    }
+}
+```
+
+**Filosofia:** testes unitários cobrem as regras de negócio que realmente importam:
+- Conflito de horário na matrícula
+- Validação de vagas disponíveis (concorrência)
+- Isolamento do coordenador (não ver aulas de outro coord)
+- Soft-delete com alunos matriculados (deve falhar)
+
+**Cobertura intencional:** 100% dos caminhos negativos (BusinessRule violations) + fluxo feliz principal. Não vale a pena cobrir getters/setters de DTOs.
+
+---
+
+## 8. O que Faria Diferente com Mais Tempo
+
+| Item | Situação atual | Melhoria |
+|---|---|---|
+| Testes de integração | Apenas unitários | `@QuarkusIntegrationTest` com Testcontainers |
+| Frontend testes | Nenhum | Jest + Angular Testing Library para stores |
+| Paginação | Listas sem paginação server-side | `Pageable` no backend + infinite scroll |
+| Cache | Sem cache | `@CacheResult` nas referências (disciplinas/horários não mudam) |
+| Observability | Health básico | Micrometer + Grafana dashboard |
+| CI/CD | Só Docker Compose | GitHub Actions: build → test → deploy |
+| Refresh token | Client-side polling | OIDC refresh token com rotação automática |
+
+---
+
+## 9. Pontos para Destacar na Entrevista
+
+### "Por que usou pessimistic locking?"
+
+> "Em um sistema de matrícula, dois alunos podem simultaneamente ver '1 vaga disponível' e ambos clicarem em Matricular. Com optimistic locking, um deles receberia um erro 409 genérico e precisaria de retry. Com pessimistic (`SELECT FOR UPDATE`), o segundo aluno espera o primeiro commit e recebe a mensagem clara 'Não há vagas disponíveis'. Isso é semanticamente mais correto para o domínio e reduz a superfície de erros no cliente."
+
+### "Por que NgRx Signal Store e não NgRx clássico?"
+
+> "NgRx clássico tem overhead de 200+ linhas (actions, reducers, effects, selectors) para um fluxo simples. O Signal Store entrega o mesmo resultado em ~50 linhas com `rxMethod` para integrações RxJS. Para uma SPA de médio porte como essa, a produtividade é superior sem sacrificar previsibilidade — o estado ainda é imutável e centralizado."
+
+### "Por que Quarkus e não Spring Boot?"
+
+> "A principal razão foi o OIDC declarativo. Com Quarkus, adiciono 3 linhas no `application.properties` e o framework trata toda a validação JWT, extração de roles e propagação do `SecurityContext`. No Spring Security precisaria de mais configuração explícita. Além disso, Quarkus tem startup sub-segundo em dev mode, que acelera muito o ciclo de desenvolvimento."
+
+### "Por que soft delete?"
+
+> "Dados acadêmicos têm valor histórico e legal. Se um aluno foi matriculado em uma aula e depois a aula foi 'excluída', esse histórico precisa existir para fins de relatório, certificação e auditoria. Marcar como `ativo = false` é a abordagem correta — o dado existe no banco mas não aparece nas listagens operacionais."
+
+---
+
+## 10. Arquitetura de Branches Git
+
+```
+master          ← versão estável final (tag v1.0.0)
+  └── develop   ← integração contínua
+        ├── feature/database-schema     ← DDL + seed data
+        ├── feature/backend-core        ← entidades, serviços, recursos
+        ├── feature/keycloak-setup      ← realm export, usuários
+        ├── feature/frontend-structure  ← Nx monorepo, libs, config
+        ├── feature/coordinator-ui      ← páginas do coordenador
+        ├── feature/student-ui          ← páginas do aluno
+        └── fix/keycloak-angular-v20    ← migração para nova API KC
+```
