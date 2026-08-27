@@ -6,7 +6,7 @@ export const authGuard: CanActivateFn = async (_route, state) => {
   const keycloak = inject(Keycloak);
   const router = inject(Router);
 
-  const authenticated = keycloak.isTokenExpired() === false;
+  const authenticated = keycloak.authenticated;
   if (!authenticated) {
     await keycloak.login({ redirectUri: window.location.origin + state.url });
     return false;

@@ -1,23 +1,18 @@
 import { Component, Input } from '@angular/core';
-import { MessageModule } from 'primeng/message';
+import { MessagesModule } from 'primeng/messages';
 
 @Component({
   selector: 'unifor-error-message',
   standalone: true,
-  imports: [MessageModule],
+  imports: [MessagesModule],
   template: `
     @if (message) {
-      <p-message severity="error" [text]="message" styleClass="w-full" />
+      <p-messages
+        [value]="[{ severity: 'error', summary: 'Erro', detail: message }]"
+        [closable]="true"
+      />
     }
   `,
-  styles: [
-    `
-      :host {
-        display: block;
-        margin: 0.5rem 0;
-      }
-    `,
-  ],
 })
 export class ErrorMessageComponent {
   @Input() message: string | null = null;

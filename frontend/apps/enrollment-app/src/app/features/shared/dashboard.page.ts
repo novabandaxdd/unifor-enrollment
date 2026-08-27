@@ -1,91 +1,78 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
 import { AuthService } from '@unifor/shared-auth';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, ButtonModule, CardModule],
+  imports: [RouterLink, CardModule, ButtonModule],
   template: `
-    <div class="dashboard">
-      <h1 class="dashboard-title">Bem-vindo ao Unifor Enrollment</h1>
-      <p class="dashboard-subtitle">
-        Sistema de gestão de matrículas acadêmicas da Universidade de Fortaleza.
-      </p>
+    <div class="dashboard-container">
+      <h1 class="dashboard-title">
+        Bem-vindo, {{ authService.getUsername() }}!
+      </h1>
 
-      <div class="cards-grid">
-        @if (authService.isCoordinator()) {
-          <p-card header="Matriz Curricular" styleClass="dashboard-card">
-            <p>Gerencie as aulas, professores e horários da grade curricular.</p>
+      @if (authService.isCoordinator()) {
+        <div class="cards-grid">
+          <p-card header="Matriz Curricular" subheader="Gerencie as aulas do semestre">
+            <p>Crie, edite e exclua aulas da matriz curricular do seu curso.</p>
             <ng-template pTemplate="footer">
               <p-button
-                label="Acessar"
-                icon="pi pi-table"
+                label="Acessar Matriz"
+                icon="pi pi-list"
                 routerLink="/matriz"
               />
             </ng-template>
           </p-card>
-        }
+        </div>
+      }
 
-        @if (authService.isStudent()) {
-          <p-card header="Aulas Disponíveis" styleClass="dashboard-card">
-            <p>Visualize as aulas disponíveis para o seu curso e realize matrículas.</p>
+      @if (authService.isStudent()) {
+        <div class="cards-grid">
+          <p-card header="Aulas Disponíveis" subheader="Realize sua matrícula">
+            <p>Veja as aulas disponíveis para o seu curso e realize sua matrícula.</p>
             <ng-template pTemplate="footer">
               <p-button
-                label="Acessar"
-                icon="pi pi-list"
+                label="Ver Aulas"
+                icon="pi pi-search"
                 routerLink="/matricula/disponiveis"
               />
             </ng-template>
           </p-card>
 
-          <p-card header="Minhas Matrículas" styleClass="dashboard-card">
-            <p>Consulte e gerencie suas matrículas ativas neste semestre.</p>
+          <p-card header="Minhas Matrículas" subheader="Acompanhe suas matrículas">
+            <p>Visualize todas as aulas em que você está matriculado.</p>
             <ng-template pTemplate="footer">
               <p-button
-                label="Acessar"
+                label="Minhas Matrículas"
                 icon="pi pi-bookmark"
+                severity="secondary"
                 routerLink="/matricula/minhas"
               />
             </ng-template>
           </p-card>
-        }
-      </div>
+        </div>
+      }
     </div>
   `,
-  styles: [
-    `
-      .dashboard {
-        padding: 1rem 0;
-      }
-
-      .dashboard-title {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #1e3a5f;
-        margin: 0 0 0.5rem;
-      }
-
-      .dashboard-subtitle {
-        color: #6b7280;
-        margin: 0 0 2rem;
-        font-size: 1rem;
-      }
-
-      .cards-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        max-width: 900px;
-      }
-
-      .dashboard-card {
-        border: 1px solid #e5e7eb;
-      }
-    `,
-  ],
+  styles: [`
+    .dashboard-container {
+      padding: 1rem 0;
+    }
+    .dashboard-title {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #1e3a5f;
+      margin-bottom: 1.5rem;
+    }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+  `],
 })
 export class DashboardPage {
   authService = inject(AuthService);

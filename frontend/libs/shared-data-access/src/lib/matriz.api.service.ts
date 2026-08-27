@@ -21,12 +21,15 @@ export class MatrizApiService {
     periodo?: string;
     cursoId?: string;
     maxAlunos?: number;
+    horarioId?: string;
   }): Observable<AulaResponse[]> {
     let params = new HttpParams();
     if (filtros?.periodo) params = params.set('periodo', filtros.periodo);
     if (filtros?.cursoId) params = params.set('cursoId', filtros.cursoId);
     if (filtros?.maxAlunos != null)
-      params = params.set('maxAlunos', filtros.maxAlunos.toString());
+      params = params.set('maxAlunos', String(filtros.maxAlunos));
+    if (filtros?.horarioId) params = params.set('horarioId', filtros.horarioId);
+
     return this.http.get<AulaResponse[]>(`${this.baseUrl}/api/v1/matriz`, {
       params,
     });
@@ -35,14 +38,14 @@ export class MatrizApiService {
   criar(request: CriarAulaRequest): Observable<AulaResponse> {
     return this.http.post<AulaResponse>(
       `${this.baseUrl}/api/v1/matriz`,
-      request,
+      request
     );
   }
 
   editar(id: string, request: EditarAulaRequest): Observable<AulaResponse> {
     return this.http.patch<AulaResponse>(
       `${this.baseUrl}/api/v1/matriz/${id}`,
-      request,
+      request
     );
   }
 
@@ -52,25 +55,25 @@ export class MatrizApiService {
 
   getDisciplinas(): Observable<Disciplina[]> {
     return this.http.get<Disciplina[]>(
-      `${this.baseUrl}/api/v1/referencias/disciplinas`,
+      `${this.baseUrl}/api/v1/referencias/disciplinas`
     );
   }
 
   getProfessores(): Observable<Professor[]> {
     return this.http.get<Professor[]>(
-      `${this.baseUrl}/api/v1/referencias/professores`,
+      `${this.baseUrl}/api/v1/referencias/professores`
     );
   }
 
   getHorarios(): Observable<Horario[]> {
     return this.http.get<Horario[]>(
-      `${this.baseUrl}/api/v1/referencias/horarios`,
+      `${this.baseUrl}/api/v1/referencias/horarios`
     );
   }
 
   getCursos(): Observable<Curso[]> {
     return this.http.get<Curso[]>(
-      `${this.baseUrl}/api/v1/referencias/cursos`,
+      `${this.baseUrl}/api/v1/referencias/cursos`
     );
   }
 }

@@ -1,14 +1,16 @@
-import { inject, computed } from '@angular/core';
-import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
-import { rxMethod } from '@ngrx/signals/rxjs-interop';
+import { inject } from '@angular/core';
 import { tapResponse } from '@ngrx/operators';
-import { pipe, switchMap, tap, forkJoin } from 'rxjs';
+import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
+import { rxMethod } from '@ngrx/signals/rxjs-interop';
+import { pipe, switchMap, tap } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { MatrizApiService } from './matriz.api.service';
 import {
   AulaResponse,
   CriarAulaRequest,
   Curso,
   Disciplina,
+  EditarAulaRequest,
   Horario,
   Professor,
 } from './models';
@@ -36,18 +38,6 @@ const initialState: MatrizState = {
 export const MatrizStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
-  withComputed(({ aulas }) => ({
-    totalAulas: computed(() => aulas().length),
-    aulasPorPeriodo: computed(() => {
-      const map = new Map<string, AulaResponse[]>();
-      for (const aula of aulas()) {
-        const periodo = aula.horario.periodo;
-        if (!map.has(periodo)) map.set(periodo, []);
-        map.get(periodo)!.push(aula);
-      }
-      return map;
-    }),
-  })),
   withMethods((store, api = inject(MatrizApiService)) => ({
     loadAulas: rxMethod<void>(
       pipe(
@@ -60,11 +50,11 @@ export const MatrizStore = signalStore(
                 patchState(store, {
                   error: 'Erro ao carregar aulas',
                   loading: false,
-                }),
-            ),
-          ),
-        ),
-      ),
+                })
+            )
+          )
+        )
+      )
     ),
 
     loadReferencias: rxMethod<void>(
@@ -78,27 +68,49 @@ export const MatrizStore = signalStore(
           }).pipe(
             tapResponse(
               (data) => patchState(store, data),
-              () => {},
-            ),
-          ),
-        ),
-      ),
+              () => {}
+            )
+          )
+        )
+      )
     ),
 
     criarAula: rxMethod<CriarAulaRequest>(
       pipe(
+        tap(() => patchState(store, { loading: true, error: null })),
         switchMap((req) =>
           api.criar(req).pipe(
             tapResponse(
               (aula) =>
                 patchState(store, (state) => ({
                   aulas: [...state.aulas, aula],
+                  loading: false,
                 })),
-              () => patchState(store, { error: 'Erro ao criar aula' }),
-            ),
-          ),
-        ),
-      ),
+              () =>
+                patchState(store, {
+                  error: 'Erro ao criar aula',
+                  loading: false,
+                })
+            )
+          )
+        )
+      )
+    ),
+
+    editarAula: rxMethod<{ id: string; request: EditarAulaRequest }>(
+      pipe(
+        switchMap(({ id, request }) =>
+          api.editar(id, request).pipe(
+            tapResponse(
+              (updated) =>
+                patchState(store, (state) => ({
+                  aulas: state.aulas.map((a) => (a.id === id ? updated : a)),
+                })),
+              () => patchState(store, { error: 'Erro ao editar aula' })
+            )
+          )
+        )
+      )
     ),
 
     excluirAula: rxMethod<string>(
@@ -110,27 +122,13 @@ export const MatrizStore = signalStore(
                 patchState(store, (state) => ({
                   aulas: state.aulas.filter((a) => a.id !== id),
                 })),
-              () => {},
-            ),
-          ),
-        ),
-      ),
+              () => patchState(store, { error: 'Erro ao excluir aula' })
+            )
+          )
+        )
+      )
     ),
 
-    editarAula: rxMethod<{ id: string; horarioId?: string; professorId?: string; cursosAutorizadosIds?: string[] }>(
-      pipe(
-        switchMap(({ id, ...req }) =>
-          api.editar(id, req).pipe(
-            tapResponse(
-              (updated) =>
-                patchState(store, (state) => ({
-                  aulas: state.aulas.map((a) => (a.id === id ? updated : a)),
-                })),
-              () => patchState(store, { error: 'Erro ao editar aula' }),
-            ),
-          ),
-        ),
-      ),
-    ),
-  })),
+    clearError: () => patchState(store, { error: null }),
+  }))
 );

@@ -1,139 +1,112 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import {
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
-import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
 import { MatrizStore } from '@unifor/shared-data-access';
-import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
+import { LoadingComponent } from '@unifor/shared-ui';
 
 @Component({
   selector: 'app-matriz-create',
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    CardModule,
+    ButtonModule,
     DropdownModule,
     MultiSelectModule,
     InputNumberModule,
-    ButtonModule,
     ToastModule,
-    CardModule,
-    RouterLink,
     LoadingComponent,
-    ErrorMessageComponent,
   ],
   providers: [MessageService],
   template: `
-    <p-toast />
+    <p-toast position="top-right" />
 
-    <div class="page-header">
-      <a routerLink="/matriz" class="back-link">
-        <i class="pi pi-arrow-left"></i> Voltar
-      </a>
-      <h1 class="page-title">Nova Aula na Matriz</h1>
-    </div>
+    <p-card header="Criar Nova Aula">
+      @if (store.loading()) {
+        <unifor-loading />
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-grid">
 
-    <unifor-error-message [message]="matrizStore.error()" />
+          <div class="field">
+            <label for="disciplina">Disciplina *</label>
+            <p-dropdown
+              id="disciplina"
+              formControlName="disciplinaId"
+              [options]="store.disciplinas()"
+              optionLabel="nome"
+              optionValue="id"
+              placeholder="Selecione a disciplina"
+              [filter]="true"
+              filterBy="nome"
+              class="w-full"
+            />
+          </div>
 
-    @if (matrizStore.loading()) {
-      <unifor-loading />
-    } @else {
-      <p-card styleClass="form-card">
-        <form [formGroup]="form" (ngSubmit)="onSubmit()">
-          <div class="form-grid">
-            <div class="form-field">
-              <label for="disciplina">Disciplina <span class="required">*</span></label>
-              <p-dropdown
-                inputId="disciplina"
-                formControlName="disciplinaId"
-                [options]="disciplinasOptions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Selecione uma disciplina"
-                [filter]="true"
-                filterPlaceholder="Buscar disciplina"
-                styleClass="w-full"
-              />
-              @if (form.get('disciplinaId')?.invalid && form.get('disciplinaId')?.touched) {
-                <small class="field-error">Disciplina é obrigatória</small>
-              }
-            </div>
+          <div class="field">
+            <label for="professor">Professor *</label>
+            <p-dropdown
+              id="professor"
+              formControlName="professorId"
+              [options]="store.professores()"
+              optionLabel="nome"
+              optionValue="id"
+              placeholder="Selecione o professor"
+              [filter]="true"
+              filterBy="nome"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-field">
-              <label for="professor">Professor <span class="required">*</span></label>
-              <p-dropdown
-                inputId="professor"
-                formControlName="professorId"
-                [options]="professoresOptions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Selecione um professor"
-                [filter]="true"
-                filterPlaceholder="Buscar professor"
-                styleClass="w-full"
-              />
-              @if (form.get('professorId')?.invalid && form.get('professorId')?.touched) {
-                <small class="field-error">Professor é obrigatório</small>
-              }
-            </div>
+          <div class="field">
+            <label for="horario">Horário *</label>
+            <p-dropdown
+              id="horario"
+              formControlName="horarioId"
+              [options]="store.horarios()"
+              [optionLabel]="horarioLabel"
+              optionValue="id"
+              placeholder="Selecione o horário"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-field">
-              <label for="horario">Horário <span class="required">*</span></label>
-              <p-dropdown
-                inputId="horario"
-                formControlName="horarioId"
-                [options]="horariosOptions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Selecione um horário"
-                styleClass="w-full"
-              />
-              @if (form.get('horarioId')?.invalid && form.get('horarioId')?.touched) {
-                <small class="field-error">Horário é obrigatório</small>
-              }
-            </div>
+          <div class="field">
+            <label for="cursos">Cursos Autorizados *</label>
+            <p-multiSelect
+              id="cursos"
+              formControlName="cursosAutorizadosIds"
+              [options]="store.cursos()"
+              optionLabel="nome"
+              optionValue="id"
+              placeholder="Selecione os cursos"
+              [filter]="true"
+              filterBy="nome"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-field">
-              <label for="cursos">Cursos Autorizados <span class="required">*</span></label>
-              <p-multiSelect
-                inputId="cursos"
-                formControlName="cursosAutorizadosIds"
-                [options]="cursosOptions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Selecione os cursos"
-                [filter]="true"
-                filterPlaceholder="Buscar curso"
-                styleClass="w-full"
-              />
-              @if (form.get('cursosAutorizadosIds')?.invalid && form.get('cursosAutorizadosIds')?.touched) {
-                <small class="field-error">Selecione ao menos um curso</small>
-              }
-            </div>
-
-            <div class="form-field">
-              <label for="maxAlunos">Máximo de Alunos <span class="required">*</span></label>
-              <p-inputNumber
-                inputId="maxAlunos"
-                formControlName="maxAlunos"
-                [min]="1"
-                [max]="200"
-                placeholder="Ex: 40"
-                styleClass="w-full"
-              />
-              @if (form.get('maxAlunos')?.invalid && form.get('maxAlunos')?.touched) {
-                <small class="field-error">Informe o número máximo de alunos (mín. 1)</small>
-              }
-            </div>
+          <div class="field">
+            <label for="maxAlunos">Máximo de Alunos *</label>
+            <p-inputNumber
+              id="maxAlunos"
+              formControlName="maxAlunos"
+              [min]="1"
+              [max]="200"
+              placeholder="Ex: 40"
+              class="w-full"
+            />
           </div>
 
           <div class="form-actions">
@@ -141,97 +114,34 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
               type="button"
               label="Cancelar"
               severity="secondary"
-              routerLink="/matriz"
+              icon="pi pi-times"
+              (onClick)="router.navigate(['/matriz'])"
             />
             <p-button
               type="submit"
               label="Criar Aula"
               icon="pi pi-check"
-              [disabled]="form.invalid || saving"
-              [loading]="saving"
+              [disabled]="form.invalid"
             />
           </div>
+
         </form>
-      </p-card>
-    }
+      }
+    </p-card>
   `,
-  styles: [
-    `
-      .page-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.25rem;
-      }
-
-      .page-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #1e3a5f;
-        margin: 0;
-      }
-
-      .back-link {
-        color: #3b82f6;
-        text-decoration: none;
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-      }
-
-      .back-link:hover {
-        text-decoration: underline;
-      }
-
-      .form-card {
-        max-width: 720px;
-      }
-
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.25rem;
-      }
-
-      .form-field {
-        display: flex;
-        flex-direction: column;
-        gap: 0.375rem;
-      }
-
-      .form-field label {
-        font-weight: 500;
-        font-size: 0.9rem;
-      }
-
-      .required {
-        color: #dc2626;
-      }
-
-      .field-error {
-        color: #dc2626;
-        font-size: 0.8rem;
-      }
-
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        margin-top: 1.5rem;
-        padding-top: 1rem;
-        border-top: 1px solid #e5e7eb;
-      }
-    `,
-  ],
+  styles: [`
+    .form-grid { display: flex; flex-direction: column; gap: 1.25rem; max-width: 600px; }
+    .field { display: flex; flex-direction: column; gap: 0.4rem; }
+    label { font-weight: 500; font-size: 0.9rem; color: #374151; }
+    .form-actions { display: flex; gap: 0.75rem; justify-content: flex-end; padding-top: 0.5rem; }
+    .w-full { width: 100%; }
+  `],
 })
 export class MatrizCreatePage implements OnInit {
-  readonly matrizStore = inject(MatrizStore);
+  readonly store = inject(MatrizStore);
+  readonly router = inject(Router);
   private fb = inject(FormBuilder);
-  private router = inject(Router);
   private messageService = inject(MessageService);
-
-  saving = false;
 
   form: FormGroup = this.fb.group({
     disciplinaId: [null, Validators.required],
@@ -241,48 +151,16 @@ export class MatrizCreatePage implements OnInit {
     maxAlunos: [null, [Validators.required, Validators.min(1)]],
   });
 
-  get disciplinasOptions() {
-    return this.matrizStore
-      .disciplinas()
-      .map((d) => ({ label: `${d.nome} (${d.cargaHoraria}h)`, value: d.id }));
-  }
-
-  get professoresOptions() {
-    return this.matrizStore
-      .professores()
-      .map((p) => ({ label: p.nome, value: p.id }));
-  }
-
-  get horariosOptions() {
-    return this.matrizStore
-      .horarios()
-      .map((h) => ({
-        label: `${h.diaSemana} ${h.horaInicio}–${h.horaFim} (${h.periodo})`,
-        value: h.id,
-      }));
-  }
-
-  get cursosOptions() {
-    return this.matrizStore
-      .cursos()
-      .map((c) => ({ label: c.nome, value: c.id }));
-  }
+  horarioLabel = (h: { diaSemana: string; horaInicio: string; horaFim: string }) =>
+    `${h.diaSemana} ${h.horaInicio}–${h.horaFim}`;
 
   ngOnInit(): void {
-    this.matrizStore.loadReferencias();
+    this.store.loadReferencias();
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-    this.saving = true;
-    this.matrizStore.criarAula(this.form.value);
-    // Navigate after a short delay to let the store update
-    setTimeout(() => {
-      this.saving = false;
-      this.router.navigate(['/matriz']);
-    }, 600);
+    if (this.form.invalid) return;
+    this.store.criarAula(this.form.value);
+    this.router.navigate(['/matriz']);
   }
 }

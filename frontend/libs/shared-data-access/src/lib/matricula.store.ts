@@ -1,9 +1,9 @@
 import { inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { tapResponse } from '@ngrx/operators';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { tapResponse } from '@ngrx/operators';
 import { pipe, switchMap, tap } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
 import { MatriculaApiService } from './matricula.api.service';
 import { AulaResponse, MatriculaResponse } from './models';
 
@@ -33,16 +33,17 @@ export const MatriculaStore = signalStore(
         switchMap(() =>
           api.getMinhas().pipe(
             tapResponse(
-              (data) => patchState(store, { minhasMatriculas: data, loading: false }),
+              (data) =>
+                patchState(store, { minhasMatriculas: data, loading: false }),
               () =>
                 patchState(store, {
                   error: 'Erro ao carregar matrículas',
                   loading: false,
-                }),
-            ),
-          ),
-        ),
-      ),
+                })
+            )
+          )
+        )
+      )
     ),
 
     loadAulasDisponiveis: rxMethod<void>(
@@ -51,45 +52,45 @@ export const MatriculaStore = signalStore(
         switchMap(() =>
           api.getDisponiveis().pipe(
             tapResponse(
-              (data) => patchState(store, { aulasDisponiveis: data, loading: false }),
+              (data) =>
+                patchState(store, { aulasDisponiveis: data, loading: false }),
               () =>
                 patchState(store, {
                   error: 'Erro ao carregar aulas disponíveis',
                   loading: false,
-                }),
-            ),
-          ),
-        ),
-      ),
+                })
+            )
+          )
+        )
+      )
     ),
 
     matricular: rxMethod<string>(
       pipe(
         tap(() =>
-          patchState(store, { loading: true, error: null, successMessage: null }),
+          patchState(store, { loading: true, error: null, successMessage: null })
         ),
         switchMap((aulaMatrizId) =>
           api.matricular(aulaMatrizId).pipe(
             tapResponse(
-              (matricula) => {
+              (matricula) =>
                 patchState(store, (state) => ({
                   minhasMatriculas: [...state.minhasMatriculas, matricula],
                   aulasDisponiveis: state.aulasDisponiveis.filter(
-                    (a) => a.id !== aulaMatrizId,
+                    (a) => a.id !== aulaMatrizId
                   ),
                   loading: false,
                   successMessage: 'Matrícula realizada com sucesso!',
-                }));
-              },
-              (err: HttpErrorResponse) => {
-                const message =
-                  err.error?.message ?? 'Erro ao realizar matrícula';
-                patchState(store, { error: message, loading: false });
-              },
-            ),
-          ),
-        ),
-      ),
+                })),
+              (err: HttpErrorResponse) =>
+                patchState(store, {
+                  error: err?.error?.message ?? 'Erro ao realizar matrícula',
+                  loading: false,
+                })
+            )
+          )
+        )
+      )
     ),
 
     cancelarMatricula: rxMethod<string>(
@@ -100,17 +101,17 @@ export const MatriculaStore = signalStore(
               () =>
                 patchState(store, (state) => ({
                   minhasMatriculas: state.minhasMatriculas.filter(
-                    (m) => m.id !== id,
+                    (m) => m.id !== id
                   ),
                 })),
-              () => {},
-            ),
-          ),
-        ),
-      ),
+              () => {}
+            )
+          )
+        )
+      )
     ),
 
     clearMessages: () =>
       patchState(store, { error: null, successMessage: null }),
-  })),
+  }))
 );

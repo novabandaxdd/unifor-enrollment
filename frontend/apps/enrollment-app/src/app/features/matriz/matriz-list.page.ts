@@ -1,12 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+import { CardModule } from 'primeng/card';
+import { DropdownModule } from 'primeng/dropdown';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { TagModule } from 'primeng/tag';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { MatrizStore } from '@unifor/shared-data-access';
@@ -16,220 +16,185 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
   selector: 'app-matriz-list',
   standalone: true,
   imports: [
+    RouterLink,
+    FormsModule,
     TableModule,
     ButtonModule,
+    TagModule,
+    CardModule,
+    DropdownModule,
     ConfirmDialogModule,
     ToastModule,
-    DropdownModule,
-    InputNumberModule,
-    TagModule,
-    FormsModule,
-    RouterLink,
     LoadingComponent,
     ErrorMessageComponent,
   ],
   providers: [ConfirmationService, MessageService],
   template: `
-    <p-toast />
+    <p-toast position="top-right" />
     <p-confirmDialog />
 
-    <div class="page-header">
-      <h1 class="page-title">Matriz Curricular</h1>
-      <p-button
-        label="Nova Aula"
-        icon="pi pi-plus"
-        routerLink="criar"
-      />
-    </div>
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="card-header-row">
+          <h2 class="card-title">Matriz Curricular</h2>
+          <p-button
+            label="Nova Aula"
+            icon="pi pi-plus"
+            routerLink="/matriz/criar"
+          />
+        </div>
+      </ng-template>
 
-    <div class="filter-bar">
-      <p-dropdown
-        [options]="periodosOptions"
-        [(ngModel)]="filtroPeriodo"
-        placeholder="Filtrar por período"
-        showClear="true"
-        (onChange)="aplicarFiltros()"
-        styleClass="filter-field"
-      />
-      <p-inputNumber
-        [(ngModel)]="filtroMaxAlunos"
-        placeholder="Máx. alunos"
-        [min]="1"
-        [showButtons]="false"
-        (onInput)="aplicarFiltros()"
-        styleClass="filter-field"
-      />
-    </div>
+      <!-- Filtros -->
+      <div class="filters-row">
+        <p-dropdown
+          [(ngModel)]="filtroPeriodo"
+          [options]="periodos"
+          placeholder="Filtrar por período"
+          [showClear]="true"
+          (onChange)="aplicarFiltros()"
+        />
+      </div>
 
-    <unifor-error-message [message]="matrizStore.error()" />
+      <unifor-error-message [message]="store.error()" />
 
-    @if (matrizStore.loading()) {
-      <unifor-loading />
-    } @else {
-      <p-table
-        [value]="aulasFiltradas"
-        [paginator]="true"
-        [rows]="10"
-        [rowsPerPageOptions]="[5, 10, 20]"
-        stripedRows="true"
-        responsiveLayout="scroll"
-        emptyMessage="Nenhuma aula encontrada."
-      >
-        <ng-template pTemplate="header">
-          <tr>
-            <th pSortableColumn="disciplina.nome">
-              Disciplina <p-sortIcon field="disciplina.nome" />
-            </th>
-            <th pSortableColumn="professor.nome">
-              Professor <p-sortIcon field="professor.nome" />
-            </th>
-            <th>Horário</th>
-            <th>Cursos Autorizados</th>
-            <th pSortableColumn="vagasDisponiveis">
-              Vagas <p-sortIcon field="vagasDisponiveis" />
-            </th>
-            <th>Ações</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-aula>
-          <tr>
-            <td>
-              <div class="cell-primary">{{ aula.disciplina.nome }}</div>
-              <div class="cell-secondary">{{ aula.disciplina.cargaHoraria }}h</div>
-            </td>
-            <td>
-              <div class="cell-primary">{{ aula.professor.nome }}</div>
-              <div class="cell-secondary">{{ aula.professor.email }}</div>
-            </td>
-            <td>
-              <div class="cell-primary">{{ aula.horario.diaSemana }}</div>
-              <div class="cell-secondary">
-                {{ aula.horario.horaInicio }} – {{ aula.horario.horaFim }}
-              </div>
-              <p-tag
-                [value]="aula.horario.periodo"
-                [severity]="getPeriodoSeverity(aula.horario.periodo)"
-              />
-            </td>
-            <td>
-              @for (curso of aula.cursosAutorizados; track curso.id) {
-                <p-tag [value]="curso.nome" severity="info" styleClass="mr-1 mb-1" />
-              }
-            </td>
-            <td>
-              <span [class]="aula.vagasDisponiveis > 0 ? 'vagas-ok' : 'vagas-esgotadas'">
-                {{ aula.vagasDisponiveis }} / {{ aula.maxAlunos }}
-              </span>
-            </td>
-            <td>
-              <div class="action-buttons">
-                <p-button
-                  icon="pi pi-pencil"
-                  severity="secondary"
-                  size="small"
-                  [routerLink]="['editar', aula.id]"
-                  pTooltip="Editar"
+      @if (store.loading()) {
+        <unifor-loading />
+      } @else {
+        <p-table
+          [value]="store.aulas()"
+          [paginator]="true"
+          [rows]="10"
+          [rowsPerPageOptions]="[5, 10, 20]"
+          stripedRows
+          responsiveLayout="scroll"
+          emptyMessage="Nenhuma aula cadastrada."
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="disciplina.nome">
+                Disciplina <p-sortIcon field="disciplina.nome" />
+              </th>
+              <th pSortableColumn="professor.nome">
+                Professor <p-sortIcon field="professor.nome" />
+              </th>
+              <th>Horário</th>
+              <th>Período</th>
+              <th>Vagas</th>
+              <th>Cursos</th>
+              <th>Ações</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-aula>
+            <tr>
+              <td>
+                <div class="cell-primary">{{ aula.disciplina.nome }}</div>
+                <div class="cell-secondary">{{ aula.disciplina.cargaHoraria }}h</div>
+              </td>
+              <td>{{ aula.professor.nome }}</td>
+              <td>
+                <div class="cell-primary">{{ aula.horario.diaSemana }}</div>
+                <div class="cell-secondary">
+                  {{ aula.horario.horaInicio }} – {{ aula.horario.horaFim }}
+                </div>
+              </td>
+              <td>
+                <p-tag
+                  [value]="aula.horario.periodo"
+                  [severity]="getPeriodoSeverity(aula.horario.periodo)"
                 />
-                <p-button
-                  icon="pi pi-trash"
-                  severity="danger"
-                  size="small"
-                  (onClick)="confirmarExclusao(aula.id, aula.disciplina.nome)"
-                  pTooltip="Excluir"
+              </td>
+              <td>
+                <p-tag
+                  [value]="aula.vagasDisponiveis + '/' + aula.maxAlunos"
+                  [severity]="aula.vagasDisponiveis > 0 ? 'success' : 'danger'"
                 />
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    }
+              </td>
+              <td>
+                <div class="cursos-list">
+                  @for (curso of aula.cursosAutorizados; track curso.id) {
+                    <p-tag [value]="curso.nome" severity="info" />
+                  }
+                </div>
+              </td>
+              <td>
+                <div class="actions-row">
+                  <p-button
+                    icon="pi pi-pencil"
+                    size="small"
+                    severity="secondary"
+                    [routerLink]="['/matriz/editar', aula.id]"
+                    pTooltip="Editar"
+                  />
+                  <p-button
+                    icon="pi pi-trash"
+                    size="small"
+                    severity="danger"
+                    (onClick)="confirmarExclusao(aula)"
+                    pTooltip="Excluir"
+                  />
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      }
+    </p-card>
   `,
-  styles: [
-    `
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.25rem;
-      }
-
-      .page-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #1e3a5f;
-        margin: 0;
-      }
-
-      .filter-bar {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        flex-wrap: wrap;
-      }
-
-      .filter-field {
-        min-width: 180px;
-      }
-
-      .cell-primary {
-        font-weight: 500;
-      }
-
-      .cell-secondary {
-        font-size: 0.82rem;
-        color: #6b7280;
-        margin-top: 2px;
-      }
-
-      .action-buttons {
-        display: flex;
-        gap: 0.4rem;
-      }
-
-      .vagas-ok {
-        color: #15803d;
-        font-weight: 600;
-      }
-
-      .vagas-esgotadas {
-        color: #b91c1c;
-        font-weight: 600;
-      }
-    `,
-  ],
+  styles: [`
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem 0;
+      width: 100%;
+    }
+    .card-title { font-size: 1.3rem; font-weight: 600; color: #1e3a5f; margin: 0; }
+    .filters-row { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .cell-primary { font-weight: 500; }
+    .cell-secondary { font-size: 0.82rem; color: #6b7280; margin-top: 2px; }
+    .cursos-list { display: flex; flex-wrap: wrap; gap: 4px; }
+    .actions-row { display: flex; gap: 4px; }
+  `],
 })
 export class MatrizListPage implements OnInit {
-  readonly matrizStore = inject(MatrizStore);
+  readonly store = inject(MatrizStore);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
-  private router = inject(Router);
 
   filtroPeriodo: string | null = null;
-  filtroMaxAlunos: number | null = null;
 
-  periodosOptions = [
+  readonly periodos = [
     { label: 'Manhã', value: 'MANHA' },
     { label: 'Tarde', value: 'TARDE' },
     { label: 'Noite', value: 'NOITE' },
   ];
 
-  get aulasFiltradas() {
-    let aulas = this.matrizStore.aulas();
-    if (this.filtroPeriodo) {
-      aulas = aulas.filter((a) => a.horario.periodo === this.filtroPeriodo);
-    }
-    if (this.filtroMaxAlunos != null) {
-      aulas = aulas.filter((a) => a.maxAlunos <= this.filtroMaxAlunos!);
-    }
-    return aulas;
-  }
-
   ngOnInit(): void {
-    this.matrizStore.loadAulas();
+    this.store.loadAulas();
   }
 
   aplicarFiltros(): void {
-    // Filters applied reactively via getter
+    this.store.loadAulas();
+  }
+
+  confirmarExclusao(aula: { id: string; disciplina: { nome: string } }): void {
+    this.confirmationService.confirm({
+      message: `Deseja excluir a aula de "${aula.disciplina.nome}"? Esta ação não pode ser desfeita.`,
+      header: 'Confirmar Exclusão',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Excluir',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.store.excluirAula(aula.id);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Aula excluída com sucesso',
+        });
+      },
+    });
   }
 
   getPeriodoSeverity(periodo: string): 'success' | 'info' | 'warning' {
@@ -239,21 +204,5 @@ export class MatrizListPage implements OnInit {
       NOITE: 'warning',
     };
     return map[periodo] ?? 'info';
-  }
-
-  confirmarExclusao(id: string, nome: string): void {
-    this.confirmationService.confirm({
-      message: `Deseja realmente excluir a aula de "${nome}"? Esta ação não pode ser desfeita.`,
-      header: 'Confirmar Exclusão',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.matrizStore.excluirAula(id);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Aula excluída',
-          detail: `A aula de "${nome}" foi removida da matriz.`,
-        });
-      },
-    });
   }
 }

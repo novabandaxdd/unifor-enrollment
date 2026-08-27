@@ -11,20 +11,20 @@ export class MatriculaApiService {
 
   getMinhas(): Observable<MatriculaResponse[]> {
     return this.http.get<MatriculaResponse[]>(
-      `${this.baseUrl}/api/v1/matricula/minhas`,
+      `${this.baseUrl}/api/v1/matricula/minhas`
     );
   }
 
   getDisponiveis(): Observable<AulaResponse[]> {
     return this.http.get<AulaResponse[]>(
-      `${this.baseUrl}/api/v1/matriz/disponiveis`,
+      `${this.baseUrl}/api/v1/matriz/disponiveis`
     );
   }
 
   matricular(aulaMatrizId: string): Observable<MatriculaResponse> {
     return this.http.post<MatriculaResponse>(
       `${this.baseUrl}/api/v1/matricula`,
-      { aulaMatrizId },
+      { aulaMatrizId }
     );
   }
 

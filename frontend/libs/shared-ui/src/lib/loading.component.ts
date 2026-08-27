@@ -6,17 +6,17 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
   standalone: true,
   imports: [ProgressSpinnerModule],
   template: `
-    <div class="loading-wrapper">
+    <div class="loading-container">
       <p-progressSpinner
-        styleClass="loading-spinner"
         strokeWidth="4"
         animationDuration=".8s"
+        ariaLabel="Carregando..."
       />
     </div>
   `,
   styles: [
     `
-      .loading-wrapper {
+      .loading-container {
         display: flex;
         justify-content: center;
         align-items: center;

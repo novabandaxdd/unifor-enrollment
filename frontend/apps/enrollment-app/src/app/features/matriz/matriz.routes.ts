@@ -1,23 +1,23 @@
 import { Routes } from '@angular/router';
 import { authGuard, roleGuard } from '@unifor/shared-auth';
+import { MatrizListPage } from './matriz-list.page';
+import { MatrizCreatePage } from './matriz-create.page';
+import { MatrizEditPage } from './matriz-edit.page';
 
 export const MATRIZ_ROUTES: Routes = [
   {
     path: '',
-    loadComponent: () =>
-      import('./matriz-list.page').then((m) => m.MatrizListPage),
+    component: MatrizListPage,
     canActivate: [authGuard, roleGuard('COORDENADOR')],
   },
   {
     path: 'criar',
-    loadComponent: () =>
-      import('./matriz-create.page').then((m) => m.MatrizCreatePage),
+    component: MatrizCreatePage,
     canActivate: [authGuard, roleGuard('COORDENADOR')],
   },
   {
     path: 'editar/:id',
-    loadComponent: () =>
-      import('./matriz-edit.page').then((m) => m.MatrizEditPage),
+    component: MatrizEditPage,
     canActivate: [authGuard, roleGuard('COORDENADOR')],
   },
 ];

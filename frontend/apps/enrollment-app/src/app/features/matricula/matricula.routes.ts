@@ -4,7 +4,11 @@ import { MinhasMatriculasPage } from './minhas-matriculas.page';
 import { AulasDisponiveisPage } from './aulas-disponiveis.page';
 
 export const MATRICULA_ROUTES: Routes = [
-  { path: '', redirectTo: 'minhas', pathMatch: 'full' },
+  {
+    path: '',
+    redirectTo: 'minhas',
+    pathMatch: 'full',
+  },
   {
     path: 'minhas',
     component: MinhasMatriculasPage,

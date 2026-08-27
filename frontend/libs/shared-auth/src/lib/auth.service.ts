@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Keycloak } from 'keycloak-angular';
-import { Observable, from } from 'rxjs';
+import { from, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -20,6 +20,10 @@ export class AuthService {
 
   isStudent(): boolean {
     return this.keycloak.hasRealmRole('ALUNO');
+  }
+
+  getUsername(): string {
+    return this.keycloak.tokenParsed?.['preferred_username'] ?? '';
   }
 
   logout(): void {

@@ -25,6 +25,8 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
     <p-toast position="top-right" />
 
     <p-card header="Aulas Disponíveis">
+      <unifor-error-message [message]="store.error()" />
+
       @if (store.loading()) {
         <unifor-loading />
       } @else {
@@ -33,7 +35,7 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
           [paginator]="true"
           [rows]="10"
           [rowsPerPageOptions]="[5, 10, 20]"
-          stripedRows="true"
+          stripedRows
           responsiveLayout="scroll"
           emptyMessage="Nenhuma aula disponível para o seu curso."
         >
@@ -47,9 +49,7 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
               </th>
               <th>Dia / Horário</th>
               <th>Período</th>
-              <th pSortableColumn="vagasDisponiveis">
-                Vagas <p-sortIcon field="vagasDisponiveis" />
-              </th>
+              <th>Vagas</th>
               <th>Ação</th>
             </tr>
           </ng-template>
@@ -57,9 +57,7 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
             <tr>
               <td>
                 <div class="cell-primary">{{ aula.disciplina.nome }}</div>
-                <div class="cell-secondary">
-                  {{ aula.disciplina.cargaHoraria }}h
-                </div>
+                <div class="cell-secondary">{{ aula.disciplina.cargaHoraria }}h</div>
               </td>
               <td>{{ aula.professor.nome }}</td>
               <td>
@@ -84,7 +82,6 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
                 <p-button
                   icon="pi pi-check"
                   label="Matricular"
-                  severity="success"
                   size="small"
                   [disabled]="aula.vagasDisponiveis === 0 || store.loading()"
                   (onClick)="store.matricular(aula.id)"
@@ -96,19 +93,10 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
       }
     </p-card>
   `,
-  styles: [
-    `
-      .cell-primary {
-        font-weight: 500;
-      }
-
-      .cell-secondary {
-        font-size: 0.82rem;
-        color: #6b7280;
-        margin-top: 2px;
-      }
-    `,
-  ],
+  styles: [`
+    .cell-primary { font-weight: 500; }
+    .cell-secondary { font-size: 0.82rem; color: #6b7280; margin-top: 2px; }
+  `],
 })
 export class AulasDisponiveisPage implements OnInit {
   readonly store = inject(MatriculaStore);
@@ -122,6 +110,7 @@ export class AulasDisponiveisPage implements OnInit {
           severity: 'success',
           summary: 'Sucesso',
           detail: success,
+          life: 3000,
         });
         this.store.clearMessages();
       }
@@ -134,6 +123,7 @@ export class AulasDisponiveisPage implements OnInit {
           severity: 'error',
           summary: 'Erro',
           detail: error,
+          life: 5000,
         });
         this.store.clearMessages();
       }
