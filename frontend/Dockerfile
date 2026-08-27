@@ -14,8 +14,8 @@ WORKDIR /app
 # Copy package files first for layer caching
 COPY package.json ./
 
-# Install dependencies
-RUN npm install --no-audit --no-fund
+# Install dependencies (legacy-peer-deps evita conflitos de peer dependencies)
+RUN npm install --no-audit --no-fund --legacy-peer-deps
 
 # Copy the rest of the workspace
 COPY . .
