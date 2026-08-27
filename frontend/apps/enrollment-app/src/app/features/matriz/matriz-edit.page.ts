@@ -5,10 +5,10 @@ import {
   FormGroup,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { Card } from 'primeng/card';
+import { Button } from 'primeng/button';
+import { Select } from 'primeng/select';
+import { MultiSelect } from 'primeng/multiselect';
 import { MatrizStore } from '@unifor/shared-data-access';
 import { LoadingComponent } from '@unifor/shared-ui';
 
@@ -17,10 +17,10 @@ import { LoadingComponent } from '@unifor/shared-ui';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    CardModule,
-    ButtonModule,
-    DropdownModule,
-    MultiSelectModule,
+    Card,
+    Button,
+    Select,
+    MultiSelect,
     LoadingComponent,
   ],
   template: `
@@ -32,7 +32,7 @@ import { LoadingComponent } from '@unifor/shared-ui';
 
           <div class="field">
             <label for="professor">Professor</label>
-            <p-dropdown
+            <p-select
               id="professor"
               formControlName="professorId"
               [options]="store.professores()"
@@ -41,20 +41,20 @@ import { LoadingComponent } from '@unifor/shared-ui';
               placeholder="Selecione o professor"
               [filter]="true"
               filterBy="nome"
-              class="w-full"
+              styleClass="w-full"
             />
           </div>
 
           <div class="field">
             <label for="horario">Horário</label>
-            <p-dropdown
+            <p-select
               id="horario"
               formControlName="horarioId"
               [options]="store.horarios()"
               [optionLabel]="horarioLabel"
               optionValue="id"
               placeholder="Selecione o horário"
-              class="w-full"
+              styleClass="w-full"
             />
           </div>
 
@@ -69,7 +69,7 @@ import { LoadingComponent } from '@unifor/shared-ui';
               placeholder="Selecione os cursos"
               [filter]="true"
               filterBy="nome"
-              class="w-full"
+              styleClass="w-full"
             />
           </div>
 
