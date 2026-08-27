@@ -1,0 +1,15 @@
+/* Global styles */
+@import 'primeng/resources/themes/lara-light-blue/theme';
+@import 'primeng/resources/primeng';
+@import 'primeicons/primeicons';
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: #f8f9fa;
+  color: #333;
+}
