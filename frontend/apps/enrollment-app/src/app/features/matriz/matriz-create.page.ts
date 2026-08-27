@@ -6,12 +6,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { ToastModule } from 'primeng/toast';
+import { Card } from 'primeng/card';
+import { Button } from 'primeng/button';
+import { Select } from 'primeng/select';
+import { MultiSelect } from 'primeng/multiselect';
+import { InputNumber } from 'primeng/inputnumber';
+import { Toast } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { MatrizStore } from '@unifor/shared-data-access';
 import { LoadingComponent } from '@unifor/shared-ui';
@@ -21,12 +21,12 @@ import { LoadingComponent } from '@unifor/shared-ui';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    CardModule,
-    ButtonModule,
-    DropdownModule,
-    MultiSelectModule,
-    InputNumberModule,
-    ToastModule,
+    Card,
+    Button,
+    Select,
+    MultiSelect,
+    InputNumber,
+    Toast,
     LoadingComponent,
   ],
   providers: [MessageService],
@@ -41,7 +41,7 @@ import { LoadingComponent } from '@unifor/shared-ui';
 
           <div class="field">
             <label for="disciplina">Disciplina *</label>
-            <p-dropdown
+            <p-select
               id="disciplina"
               formControlName="disciplinaId"
               [options]="store.disciplinas()"
@@ -50,13 +50,13 @@ import { LoadingComponent } from '@unifor/shared-ui';
               placeholder="Selecione a disciplina"
               [filter]="true"
               filterBy="nome"
-              class="w-full"
+              styleClass="w-full"
             />
           </div>
 
           <div class="field">
             <label for="professor">Professor *</label>
-            <p-dropdown
+            <p-select
               id="professor"
               formControlName="professorId"
               [options]="store.professores()"
@@ -65,20 +65,20 @@ import { LoadingComponent } from '@unifor/shared-ui';
               placeholder="Selecione o professor"
               [filter]="true"
               filterBy="nome"
-              class="w-full"
+              styleClass="w-full"
             />
           </div>
 
           <div class="field">
             <label for="horario">Horário *</label>
-            <p-dropdown
+            <p-select
               id="horario"
               formControlName="horarioId"
               [options]="store.horarios()"
               [optionLabel]="horarioLabel"
               optionValue="id"
               placeholder="Selecione o horário"
-              class="w-full"
+              styleClass="w-full"
             />
           </div>
 
@@ -93,7 +93,7 @@ import { LoadingComponent } from '@unifor/shared-ui';
               placeholder="Selecione os cursos"
               [filter]="true"
               filterBy="nome"
-              class="w-full"
+              styleClass="w-full"
             />
           </div>
 
@@ -105,7 +105,6 @@ import { LoadingComponent } from '@unifor/shared-ui';
               [min]="1"
               [max]="200"
               placeholder="Ex: 40"
-              class="w-full"
             />
           </div>
 
