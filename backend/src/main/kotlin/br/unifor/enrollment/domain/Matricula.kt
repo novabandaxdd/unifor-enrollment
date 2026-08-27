@@ -6,12 +6,12 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
-import org.hibernate.annotations.GenericGenerator
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -20,11 +20,10 @@ import java.util.UUID
     name = "matricula",
     uniqueConstraints = [UniqueConstraint(columnNames = ["aluno_id", "aula_matriz_id"])]
 )
-class Matricula : PanacheEntityBase() {
+class Matricula : PanacheEntityBase {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy = GenerationType.UUID)
     lateinit var id: UUID
 
     @ManyToOne(fetch = FetchType.LAZY)
