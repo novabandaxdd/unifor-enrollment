@@ -175,7 +175,9 @@ export class MatrizListPage implements OnInit {
   }
 
   aplicarFiltros(): void {
-    this.store.loadAulas();
+    this.store.loadAulas(
+      this.filtroPeriodo ? { periodo: this.filtroPeriodo } : undefined
+    );
   }
 
   confirmarExclusao(aula: { id: string; disciplina: { nome: string } }): void {
