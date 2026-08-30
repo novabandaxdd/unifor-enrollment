@@ -60,7 +60,7 @@
       "publicClient": true,
       "bearerOnly": false,
       "serviceAccountsEnabled": false,
-      "directAccessGrantsEnabled": false,
+      "directAccessGrantsEnabled": true,
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "protocol": "openid-connect",
