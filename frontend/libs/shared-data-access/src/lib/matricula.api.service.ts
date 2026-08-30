@@ -21,7 +21,7 @@ export class MatriculaApiService {
 
   getDisponiveis(): Observable<AulaResponse[]> {
     return this.http.get<AulaResponse[]>(
-      `${this.baseUrl}/api/v1/matriz/disponiveis`
+      `${this.baseUrl}/api/v1/matricula/disponiveis`
     );
   }
 

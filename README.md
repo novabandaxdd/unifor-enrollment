@@ -83,7 +83,7 @@ Swagger UI interativo: **http://localhost:8080/q/swagger-ui**
 | `POST` | `/api/v1/matriz` | COORDENADOR | Criar nova aula na matriz |
 | `PATCH` | `/api/v1/matriz/{id}` | COORDENADOR | Editar aula |
 | `DELETE` | `/api/v1/matriz/{id}` | COORDENADOR | Soft-delete de aula |
-| `GET` | `/api/v1/matriz/disponiveis` | ALUNO | Aulas disponíveis para o curso do aluno |
+| `GET` | `/api/v1/matricula/disponiveis` | ALUNO | Aulas disponíveis para o curso do aluno |
 | `GET` | `/api/v1/matricula/minhas` | ALUNO | Matrículas ativas do aluno |
 | `POST` | `/api/v1/matricula` | ALUNO | Realizar matrícula |
 | `DELETE` | `/api/v1/matricula/{id}` | ALUNO | Cancelar matrícula |

@@ -1,22 +1,31 @@
 import { Injectable, inject } from '@angular/core';
-import { KeycloakService } from 'keycloak-angular';
+import Keycloak from 'keycloak-js';
 import { from, Observable } from 'rxjs';
 
+/**
+ * AuthService using the new keycloak-angular v20 API.
+ * Injects the raw Keycloak instance provided by provideKeycloak().
+ * KeycloakService (legacy) is NOT provided by provideKeycloak — avoid it.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private keycloak = inject(KeycloakService);
+  private keycloak = inject(Keycloak);
 
   getToken(): Observable<string> {
-    return from(this.keycloak.getToken());
+    return from(
+      this.keycloak
+        .updateToken(30)
+        .then(() => this.keycloak.token ?? '')
+        .catch(() => this.keycloak.token ?? '')
+    );
   }
 
   /**
    * Returns realm-level roles from the Keycloak token.
-   * keycloak-angular v20: getUserRoles(true) returns realm roles (allRoles=true).
+   * keycloak-js: keycloak.realmAccess.roles contains realm roles.
    */
   getUserRoles(): string[] {
-    // true = include realm roles (not just client roles)
-    return this.keycloak.getUserRoles(true) ?? [];
+    return this.keycloak.realmAccess?.roles ?? [];
   }
 
   isCoordinator(): boolean {
@@ -28,20 +37,23 @@ export class AuthService {
   }
 
   getUsername(): string {
-    const tokenParsed = this.keycloak.getKeycloakInstance()?.tokenParsed;
-    // Return firstName if available, otherwise preferred_username (email)
+    const parsed = this.keycloak.tokenParsed;
     return (
-      (tokenParsed?.['given_name'] as string) ||
-      (tokenParsed?.['preferred_username'] as string) ||
+      (parsed?.['given_name'] as string) ||
+      (parsed?.['preferred_username'] as string) ||
       ''
     );
   }
 
   getKeycloakId(): string {
-    return this.keycloak.getKeycloakInstance()?.subject ?? '';
+    return this.keycloak.subject ?? '';
+  }
+
+  isAuthenticated(): boolean {
+    return this.keycloak.authenticated ?? false;
   }
 
   logout(): void {
-    this.keycloak.logout(window.location.origin);
+    this.keycloak.logout({ redirectUri: window.location.origin });
   }
 }

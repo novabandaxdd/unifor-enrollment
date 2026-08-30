@@ -61,10 +61,13 @@ services:
       QUARKUS_OIDC_CLIENT_ID: unifor-backend
       QUARKUS_OIDC_CREDENTIALS_SECRET: unifor-backend-secret
       QUARKUS_OIDC_TLS_VERIFICATION: none
-      # CORS
+      # Use JWT 'sub' (UUID) as principal — must match keycloak_id in DB
+      QUARKUS_OIDC_TOKEN_PRINCIPAL_CLAIM: sub
+      # CORS — aceita chamadas do Angular dev local E do nginx do Docker
       QUARKUS_HTTP_CORS: "true"
-      QUARKUS_HTTP_CORS_ORIGINS: http://localhost:4200
+      QUARKUS_HTTP_CORS_ORIGINS: "http://localhost:4200,http://localhost:80,http://localhost"
       QUARKUS_HTTP_CORS_METHODS: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      QUARKUS_HTTP_CORS_HEADERS: Content-Type,Authorization,Accept,X-Requested-With
       # Logging
       QUARKUS_LOG_LEVEL: INFO
     depends_on:

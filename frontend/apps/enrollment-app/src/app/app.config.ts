@@ -2,7 +2,12 @@ import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideKeycloak, withAutoRefreshToken } from 'keycloak-angular';
+import {
+  AutoRefreshTokenService,
+  UserActivityService,
+  provideKeycloak,
+  withAutoRefreshToken,
+} from 'keycloak-angular';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 
@@ -46,6 +51,10 @@ export const appConfig: ApplicationConfig = {
           sessionTimeout: 300000,
         }),
       ],
+      // withAutoRefreshToken.configure() calls inject(AutoRefreshTokenService)
+      // which calls inject(UserActivityService) — both MUST be explicitly provided
+      // inside provideKeycloak so they are available in the environment injector
+      providers: [AutoRefreshTokenService, UserActivityService],
     }),
   ],
 };
