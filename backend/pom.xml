@@ -48,6 +48,12 @@
       <artifactId>kotlin-stdlib-jdk8</artifactId>
     </dependency>
 
+    <!-- Jackson Kotlin module — permite deserializar data classes Kotlin sem @JsonCreator -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-kotlin</artifactId>
+    </dependency>
+
     <!-- REST — RESTEasy Reactive (Quarkus 3.x) -->
     <dependency>
       <groupId>io.quarkus</groupId>
