@@ -52,8 +52,17 @@ class AulaMatriz : PanacheEntityBase {
     )
     var cursosAutorizados: MutableList<Curso> = mutableListOf()
 
+    /**
+     * Retorna quantas vagas ainda estão disponíveis.
+     * vagasDisponiveis = maxAlunos - (matriculas ativas na aula)
+     *
+     * NOTA: Este método usa Panache.count() — adequado para leitura simples.
+     * Para contextos transacionais com lock pessimista, use
+     * MatriculaService.contarMatriculasAtivas(id) via EntityManager direto.
+     */
     fun vagasDisponiveis(): Long =
-        maxAlunos - Matricula.count("aulaMatriz = ?1 and ativo = true", this)
+        (maxAlunos - Matricula.count("aulaMatriz.id = ?1 and ativo = true", this.id))
+            .coerceAtLeast(0)
 
     companion object : PanacheCompanionBase<AulaMatriz, UUID>
 }
