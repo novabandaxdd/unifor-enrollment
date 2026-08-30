@@ -3,9 +3,11 @@ import { TableModule } from 'primeng/table';
 import { Button } from 'primeng/button';
 import { Tag } from 'primeng/tag';
 import { Toast } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { MatriculaStore } from '@unifor/shared-data-access';
 import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
+import { AulaResponse } from '@unifor/shared-data-access';
 
 @Component({
   selector: 'app-aulas-disponiveis',
@@ -15,12 +17,14 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
     Button,
     Tag,
     Toast,
+    ConfirmDialog,
     LoadingComponent,
     ErrorMessageComponent,
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   template: `
     <p-toast position="top-right" />
+    <p-confirmDialog />
 
     <div class="page-wrapper">
 
@@ -75,7 +79,7 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
                 <th class="col-horario">Horario</th>
                 <th class="col-periodo">Periodo</th>
                 <th class="col-vagas">Vagas</th>
-                <th class="col-acao">Matricular</th>
+                <th class="col-acao">Acao</th>
               </tr>
             </ng-template>
 
@@ -141,7 +145,7 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
                       size="small"
                       styleClass="btn-matricular"
                       [loading]="store.loading()"
-                      (onClick)="store.matricular(aula.id)"
+                      (onClick)="confirmarMatricula(aula)"
                     />
                   } @else {
                     <span class="esgotado-chip">Sem vagas</span>
@@ -233,11 +237,20 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
       background: #fef2f2; color: #ef4444;
       border-radius: 99px; font-size: 0.78rem; font-weight: 600;
     }
+
+    /* Confirm dialog overrides */
+    :host ::ng-deep .p-confirmdialog .p-dialog-header {
+      background: #0f172a; color: white; border-radius: 10px 10px 0 0;
+    }
+    :host ::ng-deep .p-confirmdialog .p-dialog-footer {
+      display: flex; justify-content: flex-end; gap: 0.5rem;
+    }
   `],
 })
 export class AulasDisponiveisPage implements OnInit {
   readonly store = inject(MatriculaStore);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   constructor() {
     effect(() => {
@@ -259,6 +272,29 @@ export class AulasDisponiveisPage implements OnInit {
 
   ngOnInit(): void {
     this.store.loadAulasDisponiveis();
+  }
+
+  confirmarMatricula(aula: AulaResponse): void {
+    const vagasInfo = `${aula.vagasDisponiveis} vaga(s) disponivel(is) de ${aula.maxAlunos}`;
+    const horario = `${this.getDiaSemanaLabel(aula.horario.diaSemana)}, ${aula.horario.horaInicio.substring(0, 5)} - ${aula.horario.horaFim.substring(0, 5)}`;
+
+    this.confirmationService.confirm({
+      header: 'Confirmar Matricula',
+      message: `Deseja se matricular em:\n\n<strong>${aula.disciplina.nome}</strong><br>
+        Professor: ${aula.professor.nome}<br>
+        Horario: ${horario}<br>
+        Vagas: ${vagasInfo}`,
+      icon: 'pi pi-graduation-cap',
+      acceptLabel: 'Sim, matricular',
+      rejectLabel: 'Cancelar',
+      acceptIcon: 'pi pi-check',
+      rejectIcon: 'pi pi-times',
+      acceptButtonStyleClass: 'p-button-success',
+      rejectButtonStyleClass: 'p-button-outlined p-button-secondary',
+      accept: () => {
+        this.store.matricular(aula.id);
+      },
+    });
   }
 
   getDiaSemanaLabel(dia: string): string {
