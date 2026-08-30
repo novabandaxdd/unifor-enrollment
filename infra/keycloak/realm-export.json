@@ -11,6 +11,10 @@
   "bruteForceProtected": false,
   "sslRequired": "none",
   "accessTokenLifespan": 3600,
+  "loginTheme": "unifor",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["pt-BR", "en"],
+  "defaultLocale": "pt-BR",
   "roles": {
     "realm": [
       {
