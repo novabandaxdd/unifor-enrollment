@@ -1,69 +1,70 @@
-# Sistema de Matrícula Unifor
+# Sistema de Matrícula — Unifor
 
-Full-stack academic enrollment system built for the Unifor technical challenge.
+> Sistema full-stack de gestão de matriz curricular e matrícula acadêmica desenvolvido para o Desafio Técnico Unifor 2025.
 
-- **Backend:** Kotlin 2.0 + Quarkus 3.20, PostgreSQL, JPA/Panache, REST API
-- **Frontend:** Angular 20 + Nx monorepo, NgRx Signal Store, PrimeNG, Keycloak-Angular
-- **Infrastructure:** Docker Compose (backend · frontend · Keycloak · PostgreSQL)
-- **Auth:** Keycloak OIDC with roles `ALUNO` and `COORDENADOR`
+**Stack:** Kotlin 2.0 · Quarkus 3.20 · Angular 20 · PostgreSQL 16 · Keycloak 24 · Docker Compose
 
 ---
 
-## Prerequisites
+## Pré-requisitos
 
-| Tool | Minimum version |
+| Ferramenta | Versão mínima |
 |---|---|
 | Docker & Docker Compose | 24+ |
-| Node.js | 20+ |
-| Java | 21+ |
-| Git | any |
+| Node.js (apenas para dev local) | 20+ |
+| Java (apenas para dev local) | 21+ |
+| Git | qualquer |
 
 ---
 
-## Quick Start
+## Como executar
 
 ```bash
-# Clone and run everything with one command
-git clone <repo-url>
+# 1. Clone o repositório
+git clone <url-do-repositorio>
 cd unifor-enrollment
+
+# 2. Suba todos os serviços com um único comando
 docker compose up --build
 ```
 
-All four services start in the correct dependency order:
-`postgres` → `keycloak` → `backend` → `frontend`
+A ordem de inicialização é automática:
+```
+postgres → keycloak → backend → frontend
+```
 
-Wait for the log line `Quarkus ... started in` before accessing the app.
+Aguarde a mensagem `Quarkus ... started in` no log antes de acessar o sistema.
 
 ---
 
-## Service URLs
+## URLs de acesso
 
-| Service | URL |
+| Serviço | URL |
 |---|---|
-| Frontend | http://localhost:4200 |
-| Backend REST API | http://localhost:8080 |
-| Swagger UI | http://localhost:8080/q/swagger-ui |
-| Keycloak Admin | http://localhost:8180 |
+| **Frontend** | http://localhost:4200 |
+| **Backend REST API** | http://localhost:8080 |
+| **Swagger UI** | http://localhost:8080/q/swagger-ui |
+| **Keycloak Admin** | http://localhost:8180 |
 
-Keycloak admin credentials: **admin / admin**
+Credenciais do painel Keycloak: **admin / admin**
 
 ---
 
-## Test Credentials
+## Credenciais de teste
 
-All users share the password: **`unifor123`**
+Todos os usuários utilizam a senha: **`unifor123`**
 
-### Coordinators (`COORDENADOR` role)
+### Coordenadores (perfil `COORDENADOR`)
 
-| Name | Username / Email | Password |
+| Nome | Usuário / E-mail | Senha |
 |---|---|---|
 | Ana Coordenadora | coord.ana@unifor.br | unifor123 |
 | Bruno Coordenador | coord.bruno@unifor.br | unifor123 |
 | Carla Coordenadora | coord.carla@unifor.br | unifor123 |
 
-### Students (`ALUNO` role)
+### Alunos (perfil `ALUNO`)
 
-| Name | Username / Email | Password |
+| Nome | Usuário / E-mail | Senha |
 |---|---|---|
 | João Aluno | aluno.joao@unifor.br | unifor123 |
 | Maria Aluna | aluno.maria@unifor.br | unifor123 |
@@ -75,119 +76,207 @@ All users share the password: **`unifor123`**
 
 ## Endpoints da API
 
-Swagger UI interativo: **http://localhost:8080/q/swagger-ui**
+Documentação interativa completa: **http://localhost:8080/q/swagger-ui**
 
-| Método | Endpoint | Role | Descrição |
-|---|---|---|---|
-| `GET` | `/api/v1/matriz` | COORDENADOR | Listar aulas da matriz |
-| `POST` | `/api/v1/matriz` | COORDENADOR | Criar nova aula na matriz |
-| `PATCH` | `/api/v1/matriz/{id}` | COORDENADOR | Editar aula |
-| `DELETE` | `/api/v1/matriz/{id}` | COORDENADOR | Soft-delete de aula |
-| `GET` | `/api/v1/matricula/disponiveis` | ALUNO | Aulas disponíveis para o curso do aluno |
-| `GET` | `/api/v1/matricula/minhas` | ALUNO | Matrículas ativas do aluno |
-| `POST` | `/api/v1/matricula` | ALUNO | Realizar matrícula |
-| `DELETE` | `/api/v1/matricula/{id}` | ALUNO | Cancelar matrícula |
+### Matriz Curricular (perfil: COORDENADOR)
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `GET` | `/api/v1/matriz` | Listar aulas com filtros |
+| `POST` | `/api/v1/matriz` | Criar nova aula |
+| `PATCH` | `/api/v1/matriz/{id}` | Editar aula |
+| `DELETE` | `/api/v1/matriz/{id}` | Excluir aula (soft-delete) |
+
+**Filtros disponíveis (GET /api/v1/matriz):**
+- `periodo` — `MANHA`, `TARDE` ou `NOITE`
+- `cursoId` — UUID do curso
+- `maxAlunos` — capacidade máxima (filtra por ≤)
+- `horarioId` — UUID do horário
+
+### Matrícula (perfil: ALUNO)
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `GET` | `/api/v1/matricula/disponiveis` | Aulas disponíveis para o curso do aluno |
+| `GET` | `/api/v1/matricula/minhas` | Matrículas ativas do aluno |
+| `POST` | `/api/v1/matricula` | Realizar matrícula |
+| `DELETE` | `/api/v1/matricula/{id}` | Cancelar matrícula |
+
+### Referências (autenticado)
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `GET` | `/api/v1/referencia/disciplinas` | Lista de disciplinas |
+| `GET` | `/api/v1/referencia/professores` | Lista de professores |
+| `GET` | `/api/v1/referencia/horarios` | Lista de horários |
+| `GET` | `/api/v1/referencia/cursos` | Lista de cursos |
+
+### Códigos de resposta
+
+| Código | Significado |
+|---|---|
+| `200 OK` | Sucesso |
+| `201 Created` | Recurso criado |
+| `204 No Content` | Operação sem retorno (ex: exclusão) |
+| `401 Unauthorized` | Token ausente ou inválido |
+| `403 Forbidden` | Sem permissão para o recurso |
+| `404 Not Found` | Entidade não encontrada |
+| `409 Conflict` | Regra de negócio violada (sem vagas, choque de horário, etc.) |
+| `422 Unprocessable Entity` | Dados inválidos |
 
 ---
 
-## Testando a Aplicação
-
-### Fluxo do Coordenador
+## Fluxo de teste — Coordenador
 
 1. Acesse http://localhost:4200
 2. Faça login com `coord.ana@unifor.br` / `unifor123`
-3. Navegue até **Matriz Curricular** → visualize as aulas cadastradas
-4. Clique em **Nova Aula** → preencha disciplina, professor, horário e cursos autorizados → salve
-5. Verifique que a nova aula aparece na listagem com vagas disponíveis
-6. Clique em **Editar** para alterar professor ou horário
-7. Tente **Excluir** uma aula que já tem alunos matriculados → deve retornar erro 409
+3. Vá em **Matriz Curricular** → veja as aulas cadastradas
+4. Use os **filtros** de período, curso e máximo de alunos
+5. Clique em **Nova Aula** → preencha os campos → clique em **Criar Aula**
+6. Clique em **Editar** para alterar professor, horário ou cursos autorizados
+7. Tente **Excluir** uma aula com alunos matriculados → deve retornar erro 409
 
-### Fluxo do Aluno
+## Fluxo de teste — Aluno
 
-1. Acesse http://localhost:4200 (em outra aba ou após logout do coordenador)
+1. Abra uma nova aba ou faça logout do coordenador
 2. Faça login com `aluno.joao@unifor.br` / `unifor123`
-3. Navegue até **Aulas Disponíveis** → veja as aulas do seu curso com vagas
-4. Clique em **Matricular** em uma aula → a linha desaparece da listagem
-5. Vá para **Minhas Matrículas** → a nova matrícula aparece na tabela
-6. Clique em **Cancelar** para desfazer a matrícula
+3. Vá em **Aulas Disponíveis** → veja as aulas do seu curso com vagas
+4. Clique em **Matricular** → confirme no diálogo de confirmação
+5. Vá em **Minhas Matrículas** → verifique a matrícula realizada
+6. Clique em **Cancelar** para desfazer
 
-### Cenários de Erro
+## Cenários de erro testados
 
 | Cenário | Resposta esperada |
 |---|---|
-| Matricular em aula sem vaga | Toast de erro: "Sem vagas disponíveis" (HTTP 409) |
-| Conflito de horário | Toast de erro: "Conflito de horário" (HTTP 409) |
-| Curso não autorizado para a aula | Toast de erro com mensagem do backend (HTTP 409) |
+| Matricular em aula sem vaga | Toast de erro — HTTP 409 |
+| Choque de horário | Toast de erro — HTTP 409 |
+| Curso não autorizado | Toast de erro — HTTP 409 |
+| Excluir aula com matriculados | Toast de erro — HTTP 409 |
+| Acesso a rota sem autenticação | Redirecionamento para Keycloak |
+| Acesso a rota de outro perfil | Página 403 Não Autorizado |
 
 ---
 
-## Executando Testes Unitários
+## Testes unitários
 
 ```bash
-# Backend — testes JUnit com Quarkus Test
+# Backend — JUnit 5 com Mockito
 cd backend
 ./mvnw test
 
 # Relatório de cobertura (JaCoCo)
 ./mvnw verify
-open target/site/jacoco/index.html
+# Abra: target/site/jacoco/index.html
 ```
+
+Os testes cobrem o `MatriculaService` — a classe com as regras de negócio mais críticas:
+
+- ✅ Matrícula bem-sucedida cria registro
+- ✅ Erro quando curso não autorizado
+- ✅ Erro quando não há vagas
+- ✅ Erro quando há choque de horário
+- ✅ Erro quando aluno já está matriculado
+- ✅ Upsert reativa matrícula cancelada
+- ✅ Cancelamento de matrícula
+- ✅ Erro ao cancelar matrícula já cancelada
 
 ---
 
-## Architecture Overview
+## Arquitetura
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│  Browser                                                │
-│  Angular 20 SPA (port 4200)                             │
-│  NgRx Signal Store · PrimeNG · keycloak-angular         │
-└───────────────────┬─────────────────────────────────────┘
-                    │ HTTP + Bearer token
-┌───────────────────▼─────────────────────────────────────┐
-│  Quarkus 3.20 (port 8080)                               │
-│  RESTEasy Reactive · JPA Panache · OpenAPI              │
-│  @RolesAllowed("ALUNO"|"COORDENADOR")                   │
-└────────┬───────────────────────────┬────────────────────┘
-         │                           │
-┌────────▼───────┐       ┌───────────▼──────────────────┐
-│  PostgreSQL 16 │       │  Keycloak 24 (port 8180)     │
-│  (port 5432)   │       │  Realm: unifor               │
-│  unifor_db     │       │  Clients: backend, frontend  │
-└────────────────┘       └──────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  Navegador                                                  │
+│  Angular 20 SPA (porta 4200)                                │
+│  NgRx Signal Store · PrimeNG · keycloak-angular             │
+└───────────────────┬─────────────────────────────────────────┘
+                    │ HTTP + Bearer Token (JWT)
+┌───────────────────▼─────────────────────────────────────────┐
+│  Quarkus 3.20 (porta 8080)                                  │
+│  RESTEasy Reactive · JPA Panache · OpenAPI/Swagger          │
+│  @RolesAllowed("ALUNO" | "COORDENADOR")                     │
+└────────┬───────────────────────────┬────────────────────────┘
+         │                           │ OIDC
+┌────────▼───────┐       ┌───────────▼──────────────────────┐
+│  PostgreSQL 16 │       │  Keycloak 24 (porta 8180)        │
+│  (porta 5432)  │       │  Realm: unifor                   │
+│  unifor_db     │       │  Tema personalizado em PT-BR     │
+└────────────────┘       └──────────────────────────────────┘
 ```
 
-Key design decisions:
+### Decisões técnicas principais
 
-- **Pessimistic locking** (`PESSIMISTIC_WRITE`) on `AulaMatriz` prevents double-booking under concurrent enrollment requests.
-- **Keycloak PKCE** for the Angular SPA (public client, no client secret in the browser).
-- **Panache Active Record** pattern for minimal persistence boilerplate.
-- **Nx monorepo** with shared libs (`shared-ui`, `shared-data-access`, `shared-auth`) for clean separation of concerns.
-
-See [`docs/interview-notes.md`](docs/interview-notes.md) for full architecture rationale.
+| Decisão | Justificativa |
+|---|---|
+| **Lock pessimista** (`PESSIMISTIC_WRITE`) | Garante consistência em matrículas concorrentes — zero chance de dupla ocupação de vaga |
+| **Keycloak PKCE** | Padrão OAuth2 seguro para SPA — sem client_secret no navegador |
+| **Panache Active Record** | Menos boilerplate, queries expressivas, ideal para o tamanho deste domínio |
+| **NgRx Signal Store** | Mais leve que Redux clássico, reatividade nativa do Angular 20 com Signals |
+| **Nx Monorepo** | Separação clara entre `apps/` e `libs/` com build cache incremental |
+| **Soft delete** | Preserva histórico acadêmico e permite auditoria |
+| **Upsert pattern** | Evita `ConstraintViolationException` ao re-matricular após cancelamento |
 
 ---
 
-## Project Structure
+## Estrutura do projeto
 
 ```
 unifor-enrollment/
-├── backend/                   # Quarkus Kotlin application
-│   ├── src/
-│   ├── pom.xml
+├── backend/                        # Aplicação Quarkus Kotlin
+│   ├── src/main/kotlin/br/unifor/enrollment/
+│   │   ├── resource/               # Controllers REST (MatrizResource, MatriculaResource)
+│   │   ├── service/                # Regras de negócio (MatrizService, MatriculaService)
+│   │   ├── domain/                 # Entidades JPA Panache
+│   │   ├── dto/                    # DTOs de request/response
+│   │   ├── exception/              # Exceções de domínio + GlobalExceptionMapper
+│   │   └── config/                 # JacksonConfig (KotlinModule)
+│   ├── src/test/                   # Testes unitários JUnit 5 + Mockito
 │   └── Dockerfile
 ├── docs/
-│   └── interview-notes.md     # Architecture decisions (for interview)
-├── frontend/                  # Nx Angular 20 workspace
-│   ├── apps/enrollment-app/
+│   └── interview-notes.md          # Notas para entrevista técnica
+├── frontend/                       # Workspace Nx Angular 20
+│   ├── apps/enrollment-app/        # Aplicação principal
+│   │   └── src/app/
+│   │       ├── features/
+│   │       │   ├── matriz/         # Criar, listar, editar aulas
+│   │       │   ├── matricula/      # Aulas disponíveis, minhas matrículas
+│   │       │   └── shared/         # Dashboard, unauthorized
+│   │       ├── app.component.ts    # Shell com sidebar colapsável
+│   │       └── app.routes.ts       # Roteamento com guards
 │   ├── libs/
-│   │   ├── shared-auth/       # Keycloak guards + AuthService
-│   │   ├── shared-data-access/ # API services + NgRx Signal Stores
-│   │   └── shared-ui/         # Reusable PrimeNG wrappers
+│   │   ├── shared-auth/            # AuthService, AuthGuard, RoleGuard
+│   │   ├── shared-data-access/     # Models, API services, Signal Stores
+│   │   └── shared-ui/              # LoadingComponent, ErrorMessageComponent
 │   └── Dockerfile
 ├── infra/
-│   ├── keycloak/realm-export.json
-│   └── postgres/init.sql
+│   ├── keycloak/
+│   │   ├── realm-export.json       # Realm com usuários, roles e clientes
+│   │   └── themes/unifor/login/    # Tema customizado em PT-BR
+│   └── postgres/
+│       └── init.sql                # Schema + seed data
 ├── docker-compose.yml
 └── README.md
 ```
+
+---
+
+## Dados pré-cadastrados
+
+O banco de dados é inicializado automaticamente com:
+
+| Entidade | Quantidade |
+|---|---|
+| Cursos | 9 |
+| Disciplinas | 15 |
+| Professores | 5 |
+| Horários | 9 |
+| Coordenadores | 3 |
+| Alunos | 5 |
+
+---
+
+## Documentação completa
+
+- **Swagger UI:** http://localhost:8080/q/swagger-ui
+- **Notas de entrevista:** [`docs/interview-notes.md`](docs/interview-notes.md)
