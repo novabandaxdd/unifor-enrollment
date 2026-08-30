@@ -68,6 +68,7 @@ import { LoadingComponent } from '@unifor/shared-ui';
                     [filter]="true"
                     filterBy="nome"
                     styleClass="w-full"
+                    appendTo="body"
                   />
                   <small class="field-hint">Escolha a disciplina que sera ministrada</small>
                   @if (form.get('disciplinaId')?.touched && form.get('disciplinaId')?.invalid) {
@@ -86,6 +87,7 @@ import { LoadingComponent } from '@unifor/shared-ui';
                     [filter]="true"
                     filterBy="nome"
                     styleClass="w-full"
+                    appendTo="body"
                   />
                   @if (form.get('professorId')?.touched && form.get('professorId')?.invalid) {
                     <small class="field-error">Professor e obrigatorio</small>
@@ -101,6 +103,7 @@ import { LoadingComponent } from '@unifor/shared-ui';
                     optionValue="id"
                     placeholder="Selecione o horario"
                     styleClass="w-full"
+                    appendTo="body"
                   />
                   @if (form.get('horarioId')?.touched && form.get('horarioId')?.invalid) {
                     <small class="field-error">Horario e obrigatorio</small>
@@ -138,6 +141,7 @@ import { LoadingComponent } from '@unifor/shared-ui';
                   [showClear]="true"
                   styleClass="w-full"
                   display="chip"
+                  appendTo="body"
                 />
                 <small class="field-hint">Somente alunos destes cursos poderao se matricular</small>
                 @if (form.get('cursosAutorizadosIds')?.touched && form.get('cursosAutorizadosIds')?.invalid) {
