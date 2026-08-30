@@ -41,7 +41,7 @@ class MatriculaService {
             "ativo = true and ?1 member of cursosAutorizados",
             aluno.curso
         ).list()
-            .filter { it.vagasDisponiveis() > 0 }
+            .filter { aula -> contarMatriculasAtivas(aula.id) < aula.maxAlunos }
             .map { it.toAulaResponse() }
     }
 
@@ -49,23 +49,24 @@ class MatriculaService {
     fun matricular(request: MatricularRequest, keycloakId: String): MatriculaResponse {
         val aluno = getAlunoByKeycloakId(keycloakId)
 
-        // 1. Load and PESSIMISTIC_WRITE lock the AulaMatriz
+        // 1. Load and PESSIMISTIC_WRITE lock the AulaMatriz row
         val aulaMatriz = em.find(AulaMatriz::class.java, request.aulaMatrizId, LockModeType.PESSIMISTIC_WRITE)
             ?: throw EntidadeNaoEncontradaException("Aula não encontrada")
 
         if (!aulaMatriz.ativo) throw EntidadeNaoEncontradaException("Aula não está ativa")
 
-        // 2. Validate: aluno's course is authorized
-        val cursoAutorizado = aulaMatriz.cursosAutorizados.any { it.id == aluno.curso.id }
-        if (!cursoAutorizado) throw RegraDeNegocioException("Sua aula não está autorizada para o seu curso")
+        // 2. Validate: course is authorized
+        if (aulaMatriz.cursosAutorizados.none { it.id == aluno.curso.id })
+            throw RegraDeNegocioException("Sua aula não está autorizada para o seu curso")
 
-        // 3. Validate: vagas disponíveis
-        val vagasUsadas = Matricula.count("aulaMatriz = ?1 and ativo = true", aulaMatriz)
-        if (vagasUsadas >= aulaMatriz.maxAlunos) throw RegraDeNegocioException("Não há vagas disponíveis para esta aula")
+        // 3. Validate: vagas disponíveis — query SQL direto para leitura consistente dentro do lock
+        val vagasOcupadas: Long = contarMatriculasAtivas(aulaMatriz.id)
+        if (vagasOcupadas >= aulaMatriz.maxAlunos.toLong())
+            throw RegraDeNegocioException("Não há vagas disponíveis para esta aula")
 
         // 4. Validate: no schedule conflict
         val horario = aulaMatriz.horario
-        val conflito = em.createQuery(
+        val conflito: Long = em.createQuery(
             """
             SELECT COUNT(m) FROM Matricula m
             WHERE m.aluno = :aluno
@@ -83,18 +84,28 @@ class MatriculaService {
             .singleResult
         if (conflito > 0) throw RegraDeNegocioException("Choque de horário com outra aula já matriculada")
 
-        // 5. Check if already enrolled (unique constraint guard)
-        val jaMatriculado = Matricula.count("aluno = ?1 and aulaMatriz = ?2 and ativo = true", aluno, aulaMatriz)
-        if (jaMatriculado > 0) throw RegraDeNegocioException("Aluno já matriculado nesta aula")
+        // 5. Upsert — se já existe registro (ativo=false de cancelamento anterior), reativa
+        //    Isso evita ConstraintViolationException do UNIQUE (aluno_id, aula_matriz_id)
+        val matriculaExistente: Matricula? = Matricula
+            .find("aluno = ?1 and aulaMatriz = ?2", aluno, aulaMatriz)
+            .firstResult()
 
-        // 6. Create enrollment
-        val matricula = Matricula().apply {
-            this.aluno = aluno
-            this.aulaMatriz = aulaMatriz
-            this.dataMatricula = LocalDateTime.now()
-            this.ativo = true
+        val matricula: Matricula = if (matriculaExistente != null) {
+            if (matriculaExistente.ativo)
+                throw RegraDeNegocioException("Aluno já está matriculado nesta aula")
+            // Reativar matrícula cancelada anteriormente
+            matriculaExistente.ativo = true
+            matriculaExistente.dataMatricula = LocalDateTime.now()
+            matriculaExistente
+        } else {
+            Matricula().apply {
+                this.aluno = aluno
+                this.aulaMatriz = aulaMatriz
+                this.dataMatricula = LocalDateTime.now()
+                this.ativo = true
+            }.also { it.persist() }
         }
-        matricula.persist()
+
         return matricula.toResponse()
     }
 
@@ -103,9 +114,25 @@ class MatriculaService {
         val aluno = getAlunoByKeycloakId(keycloakId)
         val matricula = Matricula.findById(matriculaId)
             ?: throw EntidadeNaoEncontradaException("Matrícula não encontrada")
-        if (matricula.aluno.id != aluno.id) throw AcessoNegadoException("Matrícula não pertence a este aluno")
+        if (matricula.aluno.id != aluno.id)
+            throw AcessoNegadoException("Matrícula não pertence a este aluno")
+        if (!matricula.ativo)
+            throw RegraDeNegocioException("Matrícula já está cancelada")
         matricula.ativo = false
     }
+
+    // ─── helpers ────────────────────────────────────────────────────────────────
+
+    /**
+     * Conta matrículas ATIVAS de uma aula via JPQL nomeado para garantir
+     * que a query sempre vai ao banco (bypassa cache L1 do Hibernate).
+     * Usado tanto no filtro de getAulasDisponiveis quanto na validação de vagas.
+     */
+    fun contarMatriculasAtivas(aulaMatrizId: UUID): Long =
+        em.createQuery(
+            "SELECT COUNT(m) FROM Matricula m WHERE m.aulaMatriz.id = :id AND m.ativo = true",
+            Long::class.java
+        ).setParameter("id", aulaMatrizId).singleResult
 
     private fun Matricula.toResponse(): MatriculaResponse = MatriculaResponse(
         id = this.id,
