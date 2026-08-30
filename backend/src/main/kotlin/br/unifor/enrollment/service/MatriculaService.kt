@@ -37,11 +37,22 @@ class MatriculaService {
 
     fun getAulasDisponiveis(keycloakId: String): List<AulaResponse> {
         val aluno = getAlunoByKeycloakId(keycloakId)
+
+        // IDs de aulas onde o aluno já tem matrícula ativa — excluir da listagem
+        val aulasJaMatriculadas: Set<UUID> = Matricula
+            .find("aluno = ?1 and ativo = true", aluno)
+            .list()
+            .map { it.aulaMatriz.id }
+            .toSet()
+
         return AulaMatriz.find(
             "ativo = true and ?1 member of cursosAutorizados",
             aluno.curso
         ).list()
-            .filter { aula -> contarMatriculasAtivas(aula.id) < aula.maxAlunos }
+            .filter { aula ->
+                aula.id !in aulasJaMatriculadas &&
+                contarMatriculasAtivas(aula.id) < aula.maxAlunos
+            }
             .map { it.toAulaResponse() }
     }
 

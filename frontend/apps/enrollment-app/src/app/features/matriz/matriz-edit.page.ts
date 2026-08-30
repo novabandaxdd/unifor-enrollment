@@ -71,6 +71,7 @@ import { LoadingComponent } from '@unifor/shared-ui';
                     filterBy="nome"
                     [showClear]="true"
                     styleClass="w-full"
+                    appendTo="body"
                   />
                   <small class="field-hint">Deixe em branco para manter o professor atual</small>
                 </div>
@@ -85,6 +86,7 @@ import { LoadingComponent } from '@unifor/shared-ui';
                     placeholder="Selecione o horario"
                     [showClear]="true"
                     styleClass="w-full"
+                    appendTo="body"
                   />
                   <small class="field-hint">Deixe em branco para manter o horario atual</small>
                 </div>
@@ -104,6 +106,7 @@ import { LoadingComponent } from '@unifor/shared-ui';
                   [showClear]="true"
                   styleClass="w-full"
                   display="chip"
+                  appendTo="body"
                 />
                 <small class="field-hint">Alunos matriculados nao serao removidos por esta alteracao</small>
               </div>
