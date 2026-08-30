@@ -1,0 +1,398 @@
+/* ================================================================
+   Unifor Enrollment — Keycloak Login Theme
+   Design: sidebar esquerda com branding + formulário à direita
+   ================================================================ */
+
+/* ── Reset & Fonts ─────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body.login-pf {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #f1f5f9;
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+}
+
+/* ── Layout: dois painéis ──────────────────────────────────────── */
+#kc-content,
+.login-pf-page {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Esconde o container padrão do Keycloak */
+#kc-header,
+.login-pf-header {
+  display: none !important;
+}
+
+/* Wrapper principal */
+.login-pf-page .container-fluid,
+#kc-content .container-fluid {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Painel esquerdo — branding (gradient azul escuro) */
+#kc-content .col-sm-8.col-md-6.col-lg-5,
+.login-pf-page .col-sm-8,
+#kc-container-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Hack de layout: reescreve o card inteiro via pseudo-elemento ─*/
+/* Keycloak usa uma row/col clássica — vamos sobrescrever com flex total */
+
+body.login-pf {
+  background: #0f172a;
+}
+
+/* Container raiz após o body */
+.login-pf-page {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 55%, #0f172a 100%);
+  min-height: 100vh;
+}
+
+/* ── Card central do formulário ───────────────────────────────── */
+#kc-container-wrapper,
+.card-pf {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.05);
+  padding: 0;
+  overflow: hidden;
+  max-width: 900px;
+  width: 90%;
+  min-height: 500px;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: row;
+  align-self: center;
+}
+
+/* ── Sidebar branding (lado esquerdo) ─────────────────────────── */
+#kc-container-wrapper::before,
+.card-pf::before {
+  content: '';
+  display: block;
+  width: 380px;
+  min-width: 320px;
+  flex-shrink: 0;
+  background:
+    linear-gradient(160deg, #1e40af 0%, #1d4ed8 40%, #7c3aed 100%);
+  position: relative;
+}
+
+/* Decoração no branding via body::before */
+.login-pf-page::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Painel do formulário (lado direito) ──────────────────────── */
+.card-pf {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Reset do card Keycloak — vamos usar direto nos elementos */
+.card-pf .card-title { display: none; }
+
+/* ── Formulário principal ─────────────────────────────────────── */
+#kc-form,
+#kc-form-login {
+  padding: 0;
+}
+
+/* Wrapper do conteúdo */
+#kc-form-wrapper,
+.login-pf-page #kc-content {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  padding: 2.5rem 2.75rem 2rem;
+  width: 100%;
+  max-width: 420px;
+  margin: 2rem auto;
+}
+
+/* ── Cabeçalho do card de login ───────────────────────────────── */
+#kc-form-wrapper::before {
+  content: '';
+  display: block;
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  border-radius: 14px;
+  margin: 0 auto 1.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 28px;
+}
+
+/* Título do formulário */
+#kc-page-title,
+.kc-page-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.02em;
+}
+
+/* Subtítulo */
+#kc-form-wrapper::after {
+  content: 'Sistema de Matrículas — Semestre 2025.1';
+  display: block;
+  text-align: center;
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
+
+/* ── Labels e campos ──────────────────────────────────────────── */
+.pf-c-form__label,
+label,
+.control-label {
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  color: #374151 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  margin-bottom: 0.4rem !important;
+  display: block;
+}
+
+/* Campos de input */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+.pf-c-form-control {
+  width: 100% !important;
+  padding: 0.7rem 1rem !important;
+  border: 1.5px solid #e5e7eb !important;
+  border-radius: 10px !important;
+  font-size: 0.95rem !important;
+  font-family: inherit !important;
+  color: #0f172a !important;
+  background: #f9fafb !important;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s !important;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+.pf-c-form-control:focus {
+  border-color: #2563eb !important;
+  background: white !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+}
+
+/* Grupo de campo */
+.form-group,
+.pf-c-form__group {
+  margin-bottom: 1.1rem !important;
+}
+
+/* ── Botão principal (Entrar) ─────────────────────────────────── */
+#kc-login,
+input[type="submit"].btn-primary,
+.pf-c-button.pf-m-primary,
+button[type="submit"] {
+  width: 100% !important;
+  padding: 0.8rem 1.5rem !important;
+  background: linear-gradient(135deg, #1d4ed8, #2563eb) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  color: white !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  font-family: inherit !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  letter-spacing: 0.02em !important;
+  margin-top: 0.5rem !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+}
+
+#kc-login:hover,
+input[type="submit"].btn-primary:hover,
+button[type="submit"]:hover {
+  background: linear-gradient(135deg, #1e40af, #1d4ed8) !important;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45) !important;
+  transform: translateY(-1px) !important;
+}
+
+#kc-login:active,
+button[type="submit"]:active {
+  transform: translateY(0) !important;
+}
+
+/* ── Link "Esqueci a senha" ───────────────────────────────────── */
+#kc-form-options,
+.login-pf-settings {
+  display: flex !important;
+  justify-content: flex-end !important;
+  margin-bottom: 0.5rem !important;
+}
+
+#kc-form-options a,
+.login-pf-settings a,
+a.kc-forgot-password {
+  font-size: 0.83rem !important;
+  color: #2563eb !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+}
+
+#kc-form-options a:hover,
+a.kc-forgot-password:hover {
+  text-decoration: underline !important;
+  color: #1d4ed8 !important;
+}
+
+/* ── Mensagens de erro/alerta ─────────────────────────────────── */
+#kc-content-wrapper .alert,
+.alert-error,
+.pf-c-alert {
+  background: #fef2f2 !important;
+  border: 1.5px solid #fca5a5 !important;
+  border-radius: 10px !important;
+  padding: 0.75rem 1rem !important;
+  margin-bottom: 1.25rem !important;
+  color: #991b1b !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.alert-error span.kc-feedback-text {
+  color: #991b1b !important;
+}
+
+/* ── Password visibility toggle ──────────────────────────────── */
+#password-confirm-wrapper,
+.pf-c-input-group {
+  position: relative !important;
+}
+
+/* ── Área rodapé do card ──────────────────────────────────────── */
+#kc-info-message,
+.instruction {
+  text-align: center !important;
+  font-size: 0.82rem !important;
+  color: #94a3b8 !important;
+  margin-top: 1.5rem !important;
+  padding-top: 1.25rem !important;
+  border-top: 1px solid #f1f5f9 !important;
+}
+
+/* Oculta links de registro (desabilitado no realm) */
+#kc-registration,
+.login-pf-signup {
+  display: none !important;
+}
+
+/* ── Texto "Powered by" no rodapé ─────────────────────────────── */
+#kc-info,
+footer {
+  text-align: center !important;
+  margin-top: 1rem !important;
+  font-size: 0.75rem !important;
+  color: rgba(255,255,255,0.4) !important;
+}
+
+/* ── Rodapé da página ─────────────────────────────────────────── */
+.login-pf-page > div > div:last-child {
+  display: none !important;
+}
+
+/* ── Responsivo ───────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  #kc-form-wrapper,
+  .login-pf-page #kc-content {
+    padding: 2rem 1.5rem;
+    border-radius: 16px;
+    margin: 1rem;
+  }
+}
+
+/* ── Transição de entrada suave ───────────────────────────────── */
+#kc-form-wrapper {
+  animation: fadeInUp 0.4s ease both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Ícones nos inputs (usuário e senha) ──────────────────────── */
+#username,
+#kc-username {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  padding-right: 2.5rem !important;
+}
+
+#password,
+#kc-password {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  padding-right: 2.5rem !important;
+}
+
+/* ── Estilos do "Lembrar-me" ──────────────────────────────────── */
+#kc-form-options .checkbox label {
+  font-size: 0.83rem !important;
+  color: #6b7280 !important;
+  font-weight: 400 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
