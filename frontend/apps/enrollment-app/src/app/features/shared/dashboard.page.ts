@@ -1,186 +1,210 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Card } from 'primeng/card';
 import { Button } from 'primeng/button';
-import { Tag } from 'primeng/tag';
 import { AuthService } from '@unifor/shared-auth';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, Card, Button, Tag],
+  imports: [RouterLink, Button],
   template: `
-    <div class="dashboard-container">
-      <div class="welcome-header">
-        <div>
-          <h1 class="dashboard-title">
-            Olá, {{ authService.getUsername() }} 👋
-          </h1>
-          <p class="welcome-subtitle">
-            Sistema de Matrículas — Unifor · Semestre 2025.1
-          </p>
-        </div>
-        <div class="role-badge-wrap">
-          @if (authService.isCoordinator()) {
-            <p-tag value="Coordenador" severity="info" icon="pi pi-user" />
-          }
-          @if (authService.isStudent()) {
-            <p-tag value="Aluno" severity="success" icon="pi pi-graduation-cap" />
-          }
+    <div class="dashboard">
+
+      <!-- Welcome -->
+      <div class="welcome-section">
+        <div class="welcome-avatar">{{ getInitials(auth.getUsername()) }}</div>
+        <div class="welcome-text">
+          <h1 class="welcome-title">Bom dia, {{ auth.getUsername() }}</h1>
+          <p class="welcome-sub">Semestre 2025.1 - Sistema de Matriculas Unifor</p>
         </div>
       </div>
 
-      @if (authService.isCoordinator()) {
+      <!-- Coordinator Cards -->
+      @if (auth.isCoordinator()) {
+        <div class="section-label">
+          <i class="pi pi-briefcase"></i> Painel do Coordenador
+        </div>
         <div class="cards-grid">
-          <p-card styleClass="action-card">
-            <div class="card-icon-wrap">
-              <i class="pi pi-list card-icon coordinator"></i>
+
+          <div class="action-card card-blue">
+            <div class="card-top">
+              <div class="card-icon-box">
+                <i class="pi pi-th-large"></i>
+              </div>
+              <div class="card-badge">Coordenador</div>
             </div>
-            <h3 class="action-card-title">Matriz Curricular</h3>
-            <p class="action-card-desc">
-              Gerencie as aulas do semestre: crie, edite e exclua aulas da matriz curricular.
-            </p>
-            <p-button
-              label="Acessar Matriz"
-              icon="pi pi-arrow-right"
-              iconPos="right"
-              routerLink="/matriz"
-              styleClass="w-full"
-            />
-          </p-card>
+            <h3 class="card-title">Matriz Curricular</h3>
+            <p class="card-desc">Gerencie as aulas do semestre: crie, edite horarios, professores e cursos autorizados.</p>
+            <a routerLink="/matriz" class="card-cta">
+              Acessar Matriz <i class="pi pi-arrow-right"></i>
+            </a>
+          </div>
+
         </div>
       }
 
-      @if (authService.isStudent()) {
+      <!-- Student Cards -->
+      @if (auth.isStudent()) {
+        <div class="section-label">
+          <i class="pi pi-graduation-cap"></i> Painel do Aluno
+        </div>
         <div class="cards-grid">
-          <p-card styleClass="action-card">
-            <div class="card-icon-wrap">
-              <i class="pi pi-search card-icon student"></i>
-            </div>
-            <h3 class="action-card-title">Aulas Disponíveis</h3>
-            <p class="action-card-desc">
-              Veja as aulas disponíveis para o seu curso e realize sua matrícula.
-            </p>
-            <p-button
-              label="Ver Aulas"
-              icon="pi pi-arrow-right"
-              iconPos="right"
-              routerLink="/matricula/disponiveis"
-              styleClass="w-full"
-            />
-          </p-card>
 
-          <p-card styleClass="action-card">
-            <div class="card-icon-wrap">
-              <i class="pi pi-bookmark card-icon student-alt"></i>
+          <div class="action-card card-green">
+            <div class="card-top">
+              <div class="card-icon-box">
+                <i class="pi pi-calendar"></i>
+              </div>
+              <div class="card-badge">Disponivel</div>
             </div>
-            <h3 class="action-card-title">Minhas Matrículas</h3>
-            <p class="action-card-desc">
-              Visualize todas as aulas em que você está matriculado e cancele se necessário.
-            </p>
-            <p-button
-              label="Minhas Matrículas"
-              icon="pi pi-arrow-right"
-              iconPos="right"
-              severity="secondary"
-              routerLink="/matricula/minhas"
-              styleClass="w-full"
-            />
-          </p-card>
+            <h3 class="card-title">Aulas Disponiveis</h3>
+            <p class="card-desc">Veja as aulas disponiveis para o seu curso e realize sua matricula com um clique.</p>
+            <a routerLink="/matricula/disponiveis" class="card-cta">
+              Ver Aulas <i class="pi pi-arrow-right"></i>
+            </a>
+          </div>
+
+          <div class="action-card card-purple">
+            <div class="card-top">
+              <div class="card-icon-box">
+                <i class="pi pi-bookmark"></i>
+              </div>
+              <div class="card-badge">Minhas</div>
+            </div>
+            <h3 class="card-title">Minhas Matriculas</h3>
+            <p class="card-desc">Acompanhe todas as aulas em que esta matriculado e cancele quando necessario.</p>
+            <a routerLink="/matricula/minhas" class="card-cta">
+              Ver Matriculas <i class="pi pi-arrow-right"></i>
+            </a>
+          </div>
+
+        </div>
+
+        <!-- Quick Tips -->
+        <div class="tips-bar">
+          <i class="pi pi-info-circle"></i>
+          <span>Dica: Ao se matricular, o sistema valida automaticamente conflitos de horario e disponibilidade de vagas em tempo real.</span>
         </div>
       }
 
-      <div class="info-footer">
-        <i class="pi pi-info-circle"></i>
-        Dúvidas? Entre em contato com a coordenação do seu curso.
-      </div>
     </div>
   `,
   styles: [`
-    .dashboard-container {
-      padding: 1rem 0;
+    .dashboard { display: flex; flex-direction: column; gap: 1.75rem; }
+
+    /* Welcome */
+    .welcome-section {
       display: flex;
-      flex-direction: column;
-      gap: 2rem;
+      align-items: center;
+      gap: 1rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #f3f4f6;
     }
-
-    .welcome-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding-bottom: 1rem;
-      border-bottom: 2px solid #e5e7eb;
+    .welcome-avatar {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; color: white;
+      flex-shrink: 0;
     }
+    .welcome-title { font-size: 1.5rem; font-weight: 700; color: #111827; margin: 0; }
+    .welcome-sub { font-size: 0.88rem; color: #9ca3af; margin: 0.2rem 0 0; }
 
-    .dashboard-title {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #1e3a5f;
-      margin: 0 0 0.25rem;
-    }
-
-    .welcome-subtitle {
-      font-size: 0.95rem;
-      color: #6b7280;
-      margin: 0;
-    }
-
-    .role-badge-wrap {
-      padding-top: 0.25rem;
-    }
-
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.5rem;
-    }
-
-    :host ::ng-deep .action-card .p-card-body {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .card-icon-wrap {
-      display: flex;
-      justify-content: center;
-      padding: 1rem 0 0.5rem;
-    }
-
-    .card-icon {
-      font-size: 2.5rem;
-    }
-
-    .card-icon.coordinator { color: #3b82f6; }
-    .card-icon.student { color: #10b981; }
-    .card-icon.student-alt { color: #f59e0b; }
-
-    .action-card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #1e3a5f;
-      margin: 0;
-      text-align: center;
-    }
-
-    .action-card-desc {
-      font-size: 0.9rem;
-      color: #6b7280;
-      margin: 0;
-      text-align: center;
-      min-height: 2.5rem;
-    }
-
-    .info-footer {
+    /* Section label */
+    .section-label {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      font-size: 0.85rem;
-      color: #9ca3af;
-      padding-top: 0.5rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
     }
+
+    /* Cards */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .action-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .action-card:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+
+    .card-icon-box {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-icon-box .pi { font-size: 1.2rem; }
+
+    .card-blue .card-icon-box { background: #dbeafe; color: #2563eb; }
+    .card-green .card-icon-box { background: #dcfce7; color: #16a34a; }
+    .card-purple .card-icon-box { background: #ede9fe; color: #7c3aed; }
+
+    .card-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.15rem 0.55rem;
+      border-radius: 99px;
+      color: #6b7280;
+      background: #f3f4f6;
+    }
+
+    .card-title { font-size: 1rem; font-weight: 700; color: #111827; margin: 0; }
+    .card-desc { font-size: 0.86rem; color: #6b7280; line-height: 1.5; margin: 0; flex: 1; }
+
+    .card-cta {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.86rem;
+      font-weight: 600;
+      text-decoration: none;
+      margin-top: 0.25rem;
+    }
+    .card-blue .card-cta { color: #2563eb; }
+    .card-green .card-cta { color: #16a34a; }
+    .card-purple .card-cta { color: #7c3aed; }
+    .card-cta:hover .pi { transform: translateX(3px); transition: transform 0.15s; }
+
+    /* Tips */
+    .tips-bar {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      font-size: 0.85rem;
+      color: #92400e;
+      line-height: 1.5;
+    }
+    .tips-bar .pi { margin-top: 1px; flex-shrink: 0; }
   `],
 })
 export class DashboardPage {
-  authService = inject(AuthService);
+  auth = inject(AuthService);
+
+  getInitials(name: string): string {
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+  }
 }
