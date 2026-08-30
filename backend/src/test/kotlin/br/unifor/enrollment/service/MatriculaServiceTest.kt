@@ -240,6 +240,44 @@ class MatriculaServiceTest {
         assertFalse(matricula.ativo)
     }
 
+    // ------------------------------------------------------------------
+    // 7. Re-matrícula após cancelamento — deve funcionar (upsert)
+    // ------------------------------------------------------------------
+    @Test
+    fun `matricular_aposCancel_reativa_matricula`() {
+        val request = MatricularRequest(aulaMatrizId = aulaMatrizId)
+
+        // Matrícula inicial
+        val primeira = matriculaService.matricular(request, alunoKeycloakId)
+        // Cancela
+        matriculaService.cancelarMatricula(primeira.id, alunoKeycloakId)
+
+        // Re-matrícula — NÃO deve lançar ConstraintViolationException
+        val segunda = matriculaService.matricular(request, alunoKeycloakId)
+
+        // Deve ser o mesmo id (upsert reativou)
+        assertEquals(primeira.id, segunda.id)
+        assertTrue(segunda.ativo)
+    }
+
+    // ------------------------------------------------------------------
+    // 8. Cancelar matrícula já cancelada — deve lançar erro
+    // ------------------------------------------------------------------
+    @Test
+    fun `cancelarMatricula_jaInativa_throwsRegraDeNegocio`() {
+        val matriculaResponse = matriculaService.matricular(
+            MatricularRequest(aulaMatrizId = aulaMatrizId),
+            alunoKeycloakId
+        )
+        // Primeiro cancelamento — OK
+        matriculaService.cancelarMatricula(matriculaResponse.id, alunoKeycloakId)
+
+        // Segundo cancelamento — deve falhar
+        assertThrows(RegraDeNegocioException::class.java) {
+            matriculaService.cancelarMatricula(matriculaResponse.id, alunoKeycloakId)
+        }
+    }
+
     // Helper — Kotlin's assertTrue not pulled in by default via JUnit5 static imports
     private fun assertTrue(value: Boolean) = assertEquals(true, value)
 }

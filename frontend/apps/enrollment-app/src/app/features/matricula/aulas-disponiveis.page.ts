@@ -120,10 +120,16 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
                         [class.vagas-cheio]="aula.vagasDisponiveis === 0"
                       ></div>
                     </div>
-                    <span class="vagas-text" [class.sem-vagas]="aula.vagasDisponiveis === 0">
-                      {{ aula.vagasDisponiveis }} / {{ aula.maxAlunos }}
-                      @if (aula.vagasDisponiveis === 0) { <span class="esgotado-label">Esgotado</span> }
-                    </span>
+                    <div class="vagas-numbers">
+                      @if (aula.vagasDisponiveis === 0) {
+                        <span class="vagas-text sem-vagas">Esgotado</span>
+                      } @else {
+                        <span class="vagas-text">
+                          <strong>{{ aula.vagasDisponiveis }}</strong> livres
+                        </span>
+                        <span class="vagas-total">de {{ aula.maxAlunos }}</span>
+                      }
+                    </div>
                   </div>
                 </td>
 
@@ -211,9 +217,11 @@ import { LoadingComponent, ErrorMessageComponent } from '@unifor/shared-ui';
     .vagas-bar { height: 5px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
     .vagas-fill { height: 100%; background: #22c55e; border-radius: 99px; transition: width 0.3s; }
     .vagas-fill.vagas-cheio { background: #ef4444; }
-    .vagas-text { font-size: 0.8rem; font-weight: 600; color: #374151; display: flex; align-items: center; gap: 0.4rem; }
-    .vagas-text.sem-vagas { color: #ef4444; }
-    .esgotado-label { font-size: 0.7rem; }
+    .vagas-numbers { display: flex; flex-direction: column; gap: 1px; }
+    .vagas-text { font-size: 0.82rem; font-weight: 500; color: #374151; }
+    .vagas-text strong { font-weight: 700; color: #16a34a; }
+    .vagas-text.sem-vagas { font-weight: 700; color: #ef4444; }
+    .vagas-total { font-size: 0.74rem; color: #9ca3af; }
 
     :host ::ng-deep .btn-matricular .p-button {
       background: #2563eb; border-color: #2563eb; font-size: 0.82rem; font-weight: 600;
