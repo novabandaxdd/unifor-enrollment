@@ -279,4 +279,3 @@ O banco de dados é inicializado automaticamente com:
 ## Documentação completa
 
 - **Swagger UI:** http://localhost:8080/q/swagger-ui
-- **Notas de entrevista:** [`docs/interview-notes.md`](docs/interview-notes.md)
