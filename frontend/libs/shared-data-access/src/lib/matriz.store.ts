@@ -39,7 +39,7 @@ export const MatrizStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
   withMethods((store, api = inject(MatrizApiService)) => ({
-    loadAulas: rxMethod<{ periodo?: string; cursoId?: string; maxAlunos?: number } | void>(
+    loadAulas: rxMethod<{ periodo?: string; cursoId?: string; maxAlunos?: number; horarioId?: string } | void>(
       pipe(
         tap(() => patchState(store, { loading: true, error: null })),
         switchMap((filtros) =>
