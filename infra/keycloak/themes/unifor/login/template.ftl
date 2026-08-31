@@ -204,12 +204,19 @@
         .password-wrap { position: relative; }
         .password-wrap .form-input { padding-right: 2.75rem; }
 
+        /* Remove ícone nativo de reveal do browser (Edge/IE, Chrome, Safari) */
+        .password-wrap .form-input::-ms-reveal,
+        .password-wrap .form-input::-ms-clear { display: none; }
+        .password-wrap .form-input::-webkit-contacts-auto-fill-button,
+        .password-wrap .form-input::-webkit-credentials-auto-fill-button { display: none; visibility: hidden; }
+
         .toggle-password {
             position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
             background: none; border: none; color: #94a3b8; cursor: pointer;
             padding: 4px; border-radius: 4px;
             display: flex; align-items: center; justify-content: center;
             transition: color 0.15s;
+            z-index: 2;
         }
 
         .toggle-password:hover { color: #374151; }
