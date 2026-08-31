@@ -87,7 +87,7 @@ class MatriculaServiceTest {
         professor.persist()
 
         val horario = Horario().apply {
-            diaSemana = "SEGUNDA"
+            diaSemana = "SEG"   // 3-char abbreviation consistent with seed data (SEG/TER/QUA/QUI/SEX/SAB/DOM)
             horaInicio = LocalTime.of(8, 0)
             horaFim = LocalTime.of(10, 0)
             periodo = "MANHA"

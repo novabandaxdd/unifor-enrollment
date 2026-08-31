@@ -317,28 +317,60 @@ QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT: no-file
 
 ## 7. Testes
 
-### Backend — Escolha das Ferramentas
+### Backend — JUnit 5 + QuarkusTest (H2 in-memory)
 
 ```kotlin
-// MatrizServiceTest.kt — Mockito-Kotlin + JUnit 5
-@Test
-fun `criarAula deve lançar exceção quando disciplina não existe`() {
-    // arrange: mockar Panache estático com mockkStatic
-    whenever(Disciplina.findById(any())).thenReturn(null)
-    // act + assert
-    assertThrows<EntidadeNaoEncontradaException> {
-        matrizService.criarAula(request, keycloakId)
-    }
+// MatriculaServiceTest.kt — 8 testes de regras de negócio críticas
+// Abordagem: @QuarkusTest com H2 in-memory no profile %test — sem mocks, sem stubs
+// Cada test roda contra a service real com banco real (in-memory) — maior fidelidade
+
+@QuarkusTest
+@TestSecurity(user = "test-aluno", roles = ["ALUNO"])
+class MatriculaServiceTest {
+    @Inject lateinit var matriculaService: MatriculaService
+
+    @BeforeEach @Transactional
+    fun setup() { /* limpa banco e cria dados isolados */ }
+
+    @Test fun `matricular_sucesso`() { ... }
+    @Test fun `matricular_semVagas_throwsRegraDeNegocio`() { ... }
+    @Test fun `matricular_choqueDeHorario_throwsRegraDeNegocio`() { ... }
+    @Test fun `matricular_cursoNaoAutorizado_throwsRegraDeNegocio`() { ... }
+    @Test fun `cancelarMatricula_alunoErrado_throwsAcessoNegado`() { ... }
+    @Test fun `cancelarMatricula_sucesso_setAtivo_false`() { ... }
+    @Test fun `matricular_aposCancel_reativa_matricula`() { ... }  // upsert
+    @Test fun `cancelarMatricula_jaInativa_throwsRegraDeNegocio`() { ... }
 }
 ```
 
-**Filosofia:** testes unitários cobrem as regras de negócio que realmente importam:
-- Conflito de horário na matrícula
-- Validação de vagas disponíveis (concorrência)
-- Isolamento do coordenador (não ver aulas de outro coord)
-- Soft-delete com alunos matriculados (deve falhar)
+**Decisão técnica — @QuarkusTest com H2 vs Mockito puro:**
+- `@QuarkusTest` sobe o container CDI real com a service real — detecta bugs de integração entre service e ORM
+- H2 no profile `%test` (MODE=PostgreSQL) permite queries JPQL reais sem precisar de Docker
+- `@TestSecurity` simula contexto autenticado sem Keycloak em produção
+- Desvantagem aceita: testes levam ~3-5s vs ~50ms com mocks — trade-off intencional para fidelidade
 
-**Cobertura intencional:** 100% dos caminhos negativos (BusinessRule violations) + fluxo feliz principal. Não vale a pena cobrir getters/setters de DTOs.
+**Cobertura intencional:** 100% dos caminhos negativos (BusinessRule violations) + fluxo feliz + upsert. Não vale a pena cobrir getters/setters de DTOs.
+
+### Frontend — Jest + jest-preset-angular (95 testes, 7 suites)
+
+```
+ PASS  apps/enrollment-app/src/app/features/shared/auth-guard.spec.ts     (16 tests)
+ PASS  apps/enrollment-app/src/app/features/shared/auth-service.spec.ts   (12 tests)
+ PASS  apps/enrollment-app/src/app/features/shared/component-utils.spec.ts (8 tests)
+ PASS  apps/enrollment-app/src/app/features/matricula/matricula-api.service.spec.ts (15 tests)
+ PASS  apps/enrollment-app/src/app/features/matricula/matricula-store.spec.ts      (14 tests)
+ PASS  apps/enrollment-app/src/app/features/matriz/matriz-api.service.spec.ts     (16 tests)
+ PASS  apps/enrollment-app/src/app/features/matriz/matriz-store.spec.ts           (14 tests)
+
+Test Suites: 7 passed, 7 total
+Tests:       95 passed, 95 total
+```
+
+**Desafio técnico resolvido — Angular 20 é pure ESM:**
+- Angular 20 removeu os bundles CJS do `@angular/core` → `ts-jest` puro lança erro imediatamente
+- Solução: `jest-preset-angular@14` como transformer ESM-aware
+- `keycloak-js` usa campo `exports` sem `main` → path explícito em `tsconfig.spec.json`
+- `provideRouter([])` no TestBed 20 causa injeção circular → solução: `Injector.create() + runInInjectionContext`
 
 ---
 
@@ -346,13 +378,13 @@ fun `criarAula deve lançar exceção quando disciplina não existe`() {
 
 | Item | Situação atual | Melhoria |
 |---|---|---|
-| Testes de integração | Apenas unitários | `@QuarkusIntegrationTest` com Testcontainers |
-| Frontend testes | Nenhum | Jest + Angular Testing Library para stores |
-| Paginação | Listas sem paginação server-side | `Pageable` no backend + infinite scroll |
+| Testes de integração | @QuarkusTest com H2 (sem Docker) | `@QuarkusIntegrationTest` com Testcontainers + PostgreSQL real |
+| Frontend testes | 95 testes Jest (services + stores + guards) | Testes de componente com Angular Testing Library |
+| Paginação | Listas sem paginação server-side | `Pageable` no backend + scroll infinito no frontend |
 | Cache | Sem cache | `@CacheResult` nas referências (disciplinas/horários não mudam) |
-| Observability | Health básico | Micrometer + Grafana dashboard |
-| CI/CD | Só Docker Compose | GitHub Actions: build → test → deploy |
-| Refresh token | Client-side polling | OIDC refresh token com rotação automática |
+| Observability | Health básico (smallrye-health) | Micrometer + Grafana/Prometheus dashboard |
+| CI/CD | Só Docker Compose local | GitHub Actions: lint → test → build → push imagem |
+| Refresh token | `withAutoRefreshToken` configurado | Rotação automática de refresh token com sliding window |
 
 ---
 
