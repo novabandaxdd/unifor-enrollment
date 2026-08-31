@@ -17,7 +17,7 @@ import { MatrizStore, MatriculaStore } from '@unifor/shared-data-access';
         <div class="page-header">
           <div>
             <h1 class="page-title">Visao Geral</h1>
-            <p class="page-sub">Semestre 2025.1 — Bem-vindo, {{ auth.getUsername() }}</p>
+            <p class="page-sub">Semestre 2026.2 — Bem-vindo, {{ auth.getUsername() }}</p>
           </div>
           <a routerLink="/matriz/criar" class="btn-primary">
             <i class="pi pi-plus"></i> Nova Aula
@@ -147,7 +147,7 @@ import { MatrizStore, MatriculaStore } from '@unifor/shared-data-access';
         <div class="page-header">
           <div>
             <h1 class="page-title">Ola, {{ getFirstName(auth.getUsername()) }}!</h1>
-            <p class="page-sub">Semestre 2025.1 — Gerencie suas matriculas</p>
+            <p class="page-sub">Semestre 2026.2 — Gerencie suas matriculas</p>
           </div>
         </div>
 
@@ -158,7 +158,7 @@ import { MatrizStore, MatriculaStore } from '@unifor/shared-data-access';
             <h2 class="profile-name">{{ auth.getUsername() }}</h2>
             <div class="profile-badges">
               <span class="badge-aluno"><i class="pi pi-graduation-cap"></i> Aluno</span>
-              <span class="badge-semestre"><i class="pi pi-calendar"></i> 2025.1</span>
+              <span class="badge-semestre"><i class="pi pi-calendar"></i> 2026.2</span>
             </div>
           </div>
           <div class="profile-stats">

@@ -17,7 +17,7 @@
 
             <h1 class="brand-name">Unifor</h1>
             <p class="brand-tagline">Sistema de Matrículas</p>
-            <p class="brand-semester">Semestre 2025.1</p>
+            <p class="brand-semester">Semestre 2026.2</p>
 
             <div class="brand-features">
                 <div class="feature-item">

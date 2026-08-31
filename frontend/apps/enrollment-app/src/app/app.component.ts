@@ -20,7 +20,7 @@ import { AuthService } from '@unifor/shared-auth';
           @if (!sidebarCollapsed()) {
             <div class="brand-text">
               <span class="brand-name">Unifor</span>
-              <span class="brand-sub">Matriculas 2025.1</span>
+              <span class="brand-sub">Matriculas 2026.2</span>
             </div>
           }
         </div>
