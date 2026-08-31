@@ -86,7 +86,7 @@
                             id="username"
                             class="form-input <#if messagesPerField.existsError('username','password')>input-error</#if>"
                             name="username"
-                            value="${(login.username!'')?html}"
+                            value="${login.username!''}"
                             type="text"
                             autofocus
                             autocomplete="off"
