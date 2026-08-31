@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="description" content="Unifor — Sistema de Matrícula 2025.1">
+    <meta name="description" content="Unifor — Sistema de Matrícula 2026.2">
 
     <title>Unifor Enrollment</title>
 
