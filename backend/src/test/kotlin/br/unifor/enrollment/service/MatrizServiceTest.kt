@@ -88,7 +88,7 @@ class MatrizServiceTest {
         professorId = professor.id
 
         val horario = Horario().apply {
-            diaSemana = "SEGUNDA"
+            diaSemana = "SEG"   // 3-char abbreviation: SEG/TER/QUA/QUI/SEX/SAB/DOM
             horaInicio = LocalTime.of(8, 0)
             horaFim = LocalTime.of(10, 0)
             periodo = "MANHA"
