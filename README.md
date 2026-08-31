@@ -102,14 +102,14 @@ Documentação interativa completa: **http://localhost:8080/q/swagger-ui**
 | `POST` | `/api/v1/matricula` | Realizar matrícula |
 | `DELETE` | `/api/v1/matricula/{id}` | Cancelar matrícula |
 
-### Referências (autenticado)
+### Referências (autenticado — ALUNO ou COORDENADOR)
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `GET` | `/api/v1/referencia/disciplinas` | Lista de disciplinas |
-| `GET` | `/api/v1/referencia/professores` | Lista de professores |
-| `GET` | `/api/v1/referencia/horarios` | Lista de horários |
-| `GET` | `/api/v1/referencia/cursos` | Lista de cursos |
+| `GET` | `/api/v1/referencias/disciplinas` | Lista de disciplinas |
+| `GET` | `/api/v1/referencias/professores` | Lista de professores |
+| `GET` | `/api/v1/referencias/horarios` | Lista de horários |
+| `GET` | `/api/v1/referencias/cursos` | Lista de cursos |
 
 ### Códigos de resposta
 
