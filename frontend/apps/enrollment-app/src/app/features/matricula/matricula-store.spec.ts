@@ -48,7 +48,7 @@ const mkAula = (id: string, vagas = 5): AulaResponse => ({
 const mkMatricula = (id: string, aulaId: string): MatriculaResponse => ({
   id,
   aulaMatriz: mkAula(aulaId),
-  dataMatricula: '2025-01-15T10:00:00',
+  dataMatricula: '2026-08-31T10:00:00',
   ativo: true,
 });
 

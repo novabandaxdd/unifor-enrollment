@@ -185,3 +185,10 @@ frontend/.env
 frontend/dist/
 frontend/.nx/
 frontend/.angular/
+
+# ============================================================
+# Arquivos privados — planejamento e notas de entrevista
+# Ficam apenas local, nao sobem para o repositorio remoto.
+# ============================================================
+unifor-enrollment-plan.md
+docs/interview-notes.md
