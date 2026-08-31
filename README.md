@@ -1,6 +1,6 @@
 # Sistema de Matrícula — Unifor
 
-> Sistema full-stack de gestão de matriz curricular e matrícula acadêmica desenvolvido para o Desafio Técnico Unifor 2025.
+> Sistema full-stack de gestão de matriz curricular e matrícula acadêmica desenvolvido para o Desafio Técnico Unifor 2026.
 
 **Stack:** Kotlin 2.0 · Quarkus 3.20 · Angular 20 · PostgreSQL 16 · Keycloak 24 · Docker Compose
 
