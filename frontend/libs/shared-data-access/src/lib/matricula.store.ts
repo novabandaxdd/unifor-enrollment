@@ -37,7 +37,7 @@ export const MatriculaStore = signalStore(
                 patchState(store, { minhasMatriculas: data, loading: false }),
               () =>
                 patchState(store, {
-                  error: 'Erro ao carregar matrículas',
+                  error: 'Erro ao carregar matriculas',
                   loading: false,
                 })
             )
@@ -56,7 +56,7 @@ export const MatriculaStore = signalStore(
                 patchState(store, { aulasDisponiveis: data, loading: false }),
               () =>
                 patchState(store, {
-                  error: 'Erro ao carregar aulas disponíveis',
+                  error: 'Erro ao carregar aulas disponiveis',
                   loading: false,
                 })
             )
@@ -80,11 +80,11 @@ export const MatriculaStore = signalStore(
                     (a) => a.id !== aulaMatrizId
                   ),
                   loading: false,
-                  successMessage: 'Matrícula realizada com sucesso!',
+                  successMessage: 'Matricula realizada com sucesso!',
                 })),
               (err: HttpErrorResponse) =>
                 patchState(store, {
-                  error: err?.error?.message ?? 'Erro ao realizar matrícula',
+                  error: err?.error?.message ?? 'Erro ao realizar matricula',
                   loading: false,
                 })
             )

@@ -80,7 +80,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/apps/enrollment-app"],
       "options": {
-        "jestConfig": "apps/enrollment-app/jest.config.ts"
+        "jestConfig": "apps/enrollment-app/jest.config.js"
       }
     }
   }

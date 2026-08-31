@@ -232,6 +232,35 @@
         </configuration>
       </plugin>
 
+      <!-- JaCoCo — code coverage report generated at: target/site/jacoco/index.html -->
+      <!-- Run with: ./mvnw verify                                                    -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.12</version>
+        <executions>
+          <!-- Prepare agent before tests run -->
+          <execution>
+            <id>prepare-agent</id>
+            <goals><goal>prepare-agent</goal></goals>
+          </execution>
+          <!-- Generate HTML/XML/CSV report after tests -->
+          <execution>
+            <id>report</id>
+            <phase>verify</phase>
+            <goals><goal>report</goal></goals>
+          </execution>
+        </executions>
+        <configuration>
+          <!-- Exclude DTOs, configs and generated code from coverage metrics -->
+          <excludes>
+            <exclude>br/unifor/enrollment/dto/**</exclude>
+            <exclude>br/unifor/enrollment/config/**</exclude>
+            <exclude>br/unifor/enrollment/HealthResource*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+
       <!-- Compiler (delegates to kotlin-maven-plugin) -->
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

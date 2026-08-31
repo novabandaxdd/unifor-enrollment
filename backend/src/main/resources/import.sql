@@ -50,6 +50,7 @@ INSERT INTO professor (id, nome, email, especialidade) VALUES
 -- -------------------------------------------------------------
 -- HORARIOS (9 records)
 -- -------------------------------------------------------------
+-- diaSemana uses 3-char abbreviation to match init.sql seed: SEG, TER, QUA, QUI, SEX, SAB, DOM
 INSERT INTO horario (id, dia_semana, hora_inicio, hora_fim, periodo) VALUES
   ('h1000000-0000-0000-0000-000000000001', 'SEG', '08:00:00', '10:00:00', 'MANHA'),
   ('h1000000-0000-0000-0000-000000000002', 'SEG', '10:00:00', '12:00:00', 'MANHA'),
