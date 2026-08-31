@@ -40,7 +40,7 @@ const mockAula: AulaResponse = {
 const mockMatricula: MatriculaResponse = {
   id: 'mat-1',
   aulaMatriz: mockAula,
-  dataMatricula: '2025-01-15T10:00:00',
+  dataMatricula: '2026-08-31T10:00:00',
   ativo: true,
 };
 
