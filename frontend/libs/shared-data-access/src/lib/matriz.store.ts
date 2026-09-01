@@ -1,4 +1,5 @@
 import { inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { tapResponse } from '@ngrx/operators';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
@@ -19,6 +20,7 @@ type MatrizState = {
   aulas: AulaResponse[];
   loading: boolean;
   error: string | null;
+  successMessage: string | null;
   disciplinas: Disciplina[];
   professores: Professor[];
   horarios: Horario[];
@@ -29,6 +31,7 @@ const initialState: MatrizState = {
   aulas: [],
   loading: false,
   error: null,
+  successMessage: null,
   disciplinas: [],
   professores: [],
   horarios: [],
@@ -121,8 +124,12 @@ export const MatrizStore = signalStore(
               () =>
                 patchState(store, (state) => ({
                   aulas: state.aulas.filter((a) => a.id !== id),
+                  successMessage: 'Aula removida com sucesso!',
                 })),
-              () => patchState(store, { error: 'Erro ao excluir aula' })
+              (err: HttpErrorResponse) =>
+                patchState(store, {
+                  error: err?.error?.message ?? 'Erro ao excluir aula',
+                })
             )
           )
         )
@@ -130,5 +137,7 @@ export const MatrizStore = signalStore(
     ),
 
     clearError: () => patchState(store, { error: null }),
+
+    clearMessages: () => patchState(store, { error: null, successMessage: null }),
   }))
 );
