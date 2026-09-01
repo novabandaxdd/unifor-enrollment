@@ -185,25 +185,185 @@ Os testes cobrem o `MatriculaService` — a classe com as regras de negócio mai
 
 ## Arquitetura
 
+```mermaid
+graph TB
+    subgraph Browser["Navegador"]
+        SPA["Angular 20 SPA — porta 4200
+Nx · NgRx Signal Store · PrimeNG 20
+keycloak-angular · authGuard · roleGuard"]
+    end
+    subgraph KC["Keycloak 24 — porta 8180"]
+        KCS["Realm: unifor
+OAuth2 PKCE S256
+Roles: ALUNO / COORDENADOR
+Tema PT-BR customizado"]
+    end
+    subgraph API["Quarkus 3.20 — porta 8080"]
+        RES["MatrizResource
+MatriculaResource
+ReferenciaResource"]
+        SVC["MatrizService
+MatriculaService"]
+        OIDC["OIDC Verifier
+@RolesAllowed"]
+        RES --> SVC
+        OIDC --> RES
+    end
+    subgraph DB["PostgreSQL 16 — porta 5432"]
+        SCHEMA["unifor_db
+init.sql + seed data
+Hibernate validate"]
+    end
+    SPA -- "PKCE redirect" --> KC
+    KC -- "access_token JWT" --> SPA
+    SPA -- "Bearer JWT" --> API
+    KC -- "OIDC discovery" --> API
+    API -- "JPA / Panache" --> DB
+    KC -. "realm store" .-> DB
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  Navegador                                                  │
-│  Angular 20 SPA (porta 4200)                                │
-│  NgRx Signal Store · PrimeNG · keycloak-angular             │
-└───────────────────┬─────────────────────────────────────────┘
-                    │ HTTP + Bearer Token (JWT)
-┌───────────────────▼─────────────────────────────────────────┐
-│  Quarkus 3.20 (porta 8080)                                  │
-│  RESTEasy Reactive · JPA Panache · OpenAPI/Swagger          │
-│  @RolesAllowed("ALUNO" | "COORDENADOR")                     │
-└────────┬───────────────────────────┬────────────────────────┘
-         │                           │ OIDC
-┌────────▼───────┐       ┌───────────▼──────────────────────┐
-│  PostgreSQL 16 │       │  Keycloak 24 (porta 8180)        │
-│  (porta 5432)  │       │  Realm: unifor                   │
-│  unifor_db     │       │  Tema personalizado em PT-BR     │
-└────────────────┘       └──────────────────────────────────┘
+
+### Diagrama de Entidades (ERD)
+
+```mermaid
+erDiagram
+    DISCIPLINA {
+        uuid id PK
+        string nome
+        int carga_horaria
+        text ementa
+    }
+    PROFESSOR {
+        uuid id PK
+        string nome
+        string email
+    }
+    HORARIO {
+        uuid id PK
+        string dia_semana
+        time hora_inicio
+        time hora_fim
+        string periodo
+    }
+    COORDENADOR {
+        uuid id PK
+        string nome
+        string email
+        string keycloak_id
+    }
+    CURSO {
+        uuid id PK
+        string nome
+        text descricao
+    }
+    AULA_MATRIZ {
+        uuid id PK
+        uuid disciplina_id FK
+        uuid professor_id FK
+        uuid horario_id FK
+        uuid coordenador_id FK
+        int max_alunos
+        bool ativo
+    }
+    AULA_MATRIZ_CURSO {
+        uuid aula_matriz_id FK
+        uuid curso_id FK
+    }
+    ALUNO {
+        uuid id PK
+        string nome
+        string email
+        string matricula
+        string keycloak_id
+        uuid curso_id FK
+    }
+    MATRICULA {
+        uuid id PK
+        uuid aluno_id FK
+        uuid aula_matriz_id FK
+        timestamp data_matricula
+        bool ativo
+    }
+    DISCIPLINA ||--o{ AULA_MATRIZ : "1 para N"
+    PROFESSOR ||--o{ AULA_MATRIZ : "1 para N"
+    HORARIO ||--o{ AULA_MATRIZ : "1 para N"
+    COORDENADOR ||--o{ AULA_MATRIZ : "1 para N"
+    AULA_MATRIZ ||--o{ AULA_MATRIZ_CURSO : "tem cursos"
+    CURSO ||--o{ AULA_MATRIZ_CURSO : "em N aulas"
+    CURSO ||--o{ ALUNO : "tem N alunos"
+    ALUNO ||--o{ MATRICULA : "faz N matriculas"
+    AULA_MATRIZ ||--o{ MATRICULA : "tem N matriculas"
 ```
+
+### Fluxo de Matrícula
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Aluno
+    participant Store as NgRx Signal Store
+    participant API as Quarkus MatriculaService
+    participant DB as PostgreSQL
+
+    Aluno ->> Store: store.matricular(aulaMatrizId)
+    Store ->> Store: patchState loading=true
+    Store ->> API: POST /api/v1/matricula Bearer JWT
+    API ->> DB: BEGIN TRANSACTION
+    API ->> DB: SELECT FOR UPDATE - PESSIMISTIC_WRITE
+    Note over DB: bloqueia linha - 2o aluno aguarda na fila
+
+    alt ativo=false
+        API -->> Store: 404 Not Found
+        Store -->> Aluno: toast Aula nao encontrada
+    else curso nao autorizado
+        API -->> Store: 409 Conflict
+        Store -->> Aluno: toast Curso nao autorizado
+    else sem vagas
+        API -->> Store: 409 Conflict
+        Store -->> Aluno: toast Sem vagas disponiveis
+    else choque de horario
+        API -->> Store: 409 Conflict
+        Store -->> Aluno: toast Choque de horario
+    else tudo OK
+        API ->> DB: INSERT matricula ativo=true
+        DB ->> API: COMMIT - lock liberado
+        API -->> Store: 201 Created
+        Store ->> Store: patchState successMessage
+        Store -->> Aluno: toast Matricula realizada
+    end
+```
+
+### Fluxo de Autenticacao PKCE
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Usuario
+    participant SPA as Angular SPA
+    participant KC as Keycloak 24
+    participant Quarkus as Quarkus API
+
+    Usuario ->> SPA: acessa rota protegida
+    SPA ->> SPA: authGuard - sem token
+    SPA ->> SPA: gera code_verifier
+    Note over SPA: code_challenge = SHA256(verifier)
+    SPA ->> KC: redirect /auth?code_challenge=...&method=S256
+    KC -->> Usuario: exibe formulario login PT-BR
+    Usuario ->> KC: POST email + senha
+    KC ->> KC: valida no realm unifor
+    KC -->> SPA: callback?code=AUTH_CODE
+    SPA ->> KC: POST /token - code + code_verifier
+    KC ->> KC: verifica SHA256(verifier) == challenge
+    KC -->> SPA: access_token JWT + refresh_token
+    Note over SPA: token em memoria - withAutoRefreshToken
+    SPA ->> Quarkus: GET /api/v1/matriz Bearer JWT
+    Quarkus ->> KC: valida JWT via OIDC discovery
+    KC -->> Quarkus: token valido + claims
+    Note over Quarkus: @RolesAllowed - extrai keycloak_id
+    Quarkus -->> SPA: 200 OK + dados
+    SPA -->> Usuario: pagina autorizada
+```
+
+---
 
 ### Decisões técnicas principais
 
@@ -234,7 +394,7 @@ unifor-enrollment/
 │   ├── src/test/                   # Testes unitários JUnit 5 + Mockito
 │   └── Dockerfile
 ├── docs/
-│   └── interview-notes.md          # Notas para entrevista técnica
+│   ├── diagrams.html               # Diagramas interativos (Mermaid)
 ├── frontend/                       # Workspace Nx Angular 20
 │   ├── apps/enrollment-app/        # Aplicação principal
 │   │   └── src/app/
