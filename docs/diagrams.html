@@ -4,48 +4,56 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Diagramas — Sistema de Matrícula Unifor</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <style>
-:root{--bg:#0f1117;--s:#1a1d27;--s2:#22263a;--bd:#2e3350;--bl:#5b8dee;--gr:#3ecf8e;--pu:#7c6af7;--ye:#f0c040;--or:#f0a040;--re:#e05c5c;--tx:#e2e6f0;--mu:#7e89a9;}
+:root{
+  --bg:#0f1117;--s:#1a1d27;--s2:#22263a;--bd:#2e3350;
+  --bl:#5b8dee;--gr:#3ecf8e;--pu:#7c6af7;--ye:#f0c040;--re:#e05c5c;
+  --tx:#e2e6f0;--mu:#7e89a9;
+}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--tx);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;}
-.hdr{background:linear-gradient(135deg,#1e2240,#12152b);border-bottom:2px solid var(--bl);padding:20px 32px;display:flex;align-items:center;gap:14px;}
-.hdr h1{font-size:19px;font-weight:700;color:#fff;}
-.hdr p{color:var(--mu);font-size:12px;margin-top:3px;}
-.bx{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;margin:2px;}
-.bb{background:rgba(91,141,238,.2);color:var(--bl);border:1px solid rgba(91,141,238,.4);}
-.bg{background:rgba(62,207,142,.2);color:var(--gr);border:1px solid rgba(62,207,142,.4);}
-.bp{background:rgba(124,106,247,.2);color:var(--pu);border:1px solid rgba(124,106,247,.4);}
-.by{background:rgba(240,192,64,.2);color:var(--ye);border:1px solid rgba(240,192,64,.4);}
-.tabs{display:flex;gap:4px;padding:14px 32px 0;border-bottom:1px solid var(--bd);background:var(--s);}
-.tab{padding:9px 20px;border-radius:8px 8px 0 0;font-size:13px;font-weight:600;cursor:pointer;border:1px solid transparent;border-bottom:none;color:var(--mu);transition:all .2s;user-select:none;}
+body{background:var(--bg);color:var(--tx);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.5;}
+
+.hdr{background:linear-gradient(135deg,#1e2240,#12152b);border-bottom:2px solid var(--bl);padding:22px 36px;display:flex;align-items:center;gap:16px;}
+.hdr-icon{font-size:38px;line-height:1;}
+.hdr h1{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.3px;}
+.hdr p{color:var(--mu);font-size:12px;margin-top:4px;}
+.bx{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;margin:2px 2px 0;}
+.bb{background:rgba(91,141,238,.18);color:var(--bl);border:1px solid rgba(91,141,238,.4);}
+.bg{background:rgba(62,207,142,.18);color:var(--gr);border:1px solid rgba(62,207,142,.4);}
+.bp{background:rgba(124,106,247,.18);color:var(--pu);border:1px solid rgba(124,106,247,.4);}
+.by{background:rgba(240,192,64,.18);color:var(--ye);border:1px solid rgba(240,192,64,.4);}
+
+.tabs{display:flex;gap:4px;padding:14px 36px 0;border-bottom:1px solid var(--bd);background:var(--s);overflow-x:auto;}
+.tab{padding:9px 22px;border-radius:8px 8px 0 0;font-size:13px;font-weight:600;cursor:pointer;border:1px solid transparent;border-bottom:none;color:var(--mu);transition:all .18s;user-select:none;white-space:nowrap;}
 .tab:hover{color:var(--tx);background:var(--s2);}
 .tab.on{color:#fff;background:var(--bg);border-color:var(--bd);}
-.pnl{display:none;padding:28px 32px 40px;}
+
+.pnl{display:none;padding:30px 36px 48px;}
 .pnl.on{display:block;}
-.ptit{font-size:14px;font-weight:700;color:var(--bl);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
-.psub{color:var(--mu);font-size:12px;margin-bottom:20px;}
-.wrap{background:var(--s);border:1px solid var(--bd);border-radius:12px;padding:20px;overflow:auto;}
-.wrap svg{display:block;margin:0 auto;}
-.cal{border-radius:8px;padding:13px 17px;margin-top:16px;border-left:4px solid;font-size:13px;line-height:1.65;}
-.cb{background:rgba(91,141,238,.08);border-color:var(--bl);}
-.cg{background:rgba(62,207,142,.08);border-color:var(--gr);}
-.cp{background:rgba(124,106,247,.08);border-color:var(--pu);}
-.cy{background:rgba(240,192,64,.08);border-color:var(--ye);}
-.cal strong{display:block;color:#fff;margin-bottom:4px;}
-.leg{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px;}
-.li{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mu);}
-.ld{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+.ptit{font-size:13px;font-weight:700;color:var(--bl);text-transform:uppercase;letter-spacing:.9px;margin-bottom:4px;}
+.psub{color:var(--mu);font-size:12px;margin-bottom:22px;max-width:720px;}
+
+.wrap{background:var(--s);border:1px solid var(--bd);border-radius:14px;padding:28px 24px;overflow:auto;}
+.wrap .mermaid{min-width:640px;}
+
+.cal{border-radius:8px;padding:14px 18px;margin-top:18px;border-left:4px solid;font-size:13px;line-height:1.65;max-width:820px;}
+.cb{background:rgba(91,141,238,.07);border-color:var(--bl);}
+.cg{background:rgba(62,207,142,.07);border-color:var(--gr);}
+.cp{background:rgba(124,106,247,.07);border-color:var(--pu);}
+.cy{background:rgba(240,192,64,.07);border-color:var(--ye);}
+.cal strong{display:block;color:#fff;margin-bottom:5px;}
 code{background:#0d0f1a;border:1px solid var(--bd);border-radius:4px;padding:1px 6px;font-family:Consolas,monospace;font-size:12px;color:var(--bl);}
 </style>
 </head>
 <body>
 
 <div class="hdr">
-  <div style="font-size:34px;line-height:1">🎓</div>
+  <div class="hdr-icon">🎓</div>
   <div>
     <h1>Diagramas Técnicos — Sistema de Matrícula Unifor</h1>
-    <p>Arquitetura · ERD · Fluxo de Matrícula · Fluxo de Autenticação</p>
-    <div style="margin-top:7px">
+    <p>Arquitetura Geral · ERD · Fluxo de Matrícula · Fluxo de Autenticação</p>
+    <div style="margin-top:8px">
       <span class="bx bb">Angular 20</span>
       <span class="bx bg">Kotlin 2.0 · Quarkus 3.20</span>
       <span class="bx bp">PostgreSQL 16</span>
@@ -55,521 +63,297 @@ code{background:#0d0f1a;border:1px solid var(--bd);border-radius:4px;padding:1px
 </div>
 
 <div class="tabs">
-  <div class="tab on" onclick="show('arch',this)">🏗️ Arquitetura</div>
-  <div class="tab" onclick="show('erd',this)">🗂️ ERD</div>
-  <div class="tab" onclick="show('flow',this)">🔄 Fluxo Matrícula</div>
-  <div class="tab" onclick="show('auth',this)">🔑 Autenticação</div>
+  <div class="tab on"  onclick="show('arch',this)">🏗️ Arquitetura</div>
+  <div class="tab"     onclick="show('erd',this)">🗂️ ERD</div>
+  <div class="tab"     onclick="show('flow',this)">🔄 Fluxo Matrícula</div>
+  <div class="tab"     onclick="show('auth',this)">🔑 Autenticação</div>
 </div>
 
 <!-- ═══════════════════ ARQUITETURA ═══════════════════ -->
 <div id="arch" class="pnl on">
-<div class="ptit">🏗️ Arquitetura Geral</div>
-<div class="psub">Quatro serviços Docker Compose com responsabilidades únicas. Toda comunicação usa JWT assinado pelo Keycloak.</div>
-<div class="wrap">
-<svg width="820" height="500" viewBox="0 0 820 500" xmlns="http://www.w3.org/2000/svg">
-<defs>
-  <marker id="ma" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#5b8dee"/></marker>
-  <marker id="mp" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#7c6af7"/></marker>
-  <marker id="mg" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#3ecf8e"/></marker>
-</defs>
+  <div class="ptit">🏗️ Arquitetura Geral</div>
+  <div class="psub">Quatro serviços Docker Compose com responsabilidades únicas. Toda requisição autenticada carrega um JWT assinado pelo Keycloak e validado pelo Quarkus via OIDC discovery.</div>
+  <div class="wrap">
+    <div class="mermaid">
+graph TB
+    subgraph Browser["🌐 Navegador"]
+        SPA["⚛️ Angular 20 SPA<br/>porta :4200<br/>Nx · NgRx Signal Store · PrimeNG 20<br/>keycloak-angular · authGuard · roleGuard"]
+    end
 
-<!-- Docker border -->
-<rect x="10" y="10" width="800" height="480" rx="14" fill="none" stroke="#2e3350" stroke-width="1.5" stroke-dasharray="8,4"/>
-<text x="32" y="34" font-size="11" fill="#7c6af7" font-family="Segoe UI,sans-serif" font-weight="600">Docker Compose Network</text>
+    subgraph KC["🔑 Keycloak 24 — porta :8180"]
+        KCS["Realm: unifor<br/>OAuth2 PKCE S256<br/>Roles: ALUNO / COORDENADOR<br/>Tema PT-BR customizado"]
+    end
 
-<!-- ANGULAR -->
-<rect x="30" y="55" width="185" height="200" rx="10" fill="#1a1d27" stroke="#5b8dee" stroke-width="2"/>
-<rect x="30" y="55" width="185" height="32" rx="10" fill="#5b8dee"/>
-<rect x="30" y="75" width="185" height="12" rx="0" fill="#5b8dee"/>
-<text x="122" y="76" text-anchor="middle" font-size="12" fill="#fff" font-weight="700" font-family="Segoe UI,sans-serif">Angular 20 SPA</text>
-<text x="122" y="104" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">nginx · porta 4200</text>
-<text x="50" y="126" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ Nx Monorepo</text>
-<text x="50" y="143" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ NgRx Signal Store</text>
-<text x="50" y="160" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ PrimeNG 20</text>
-<text x="50" y="177" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ keycloak-angular</text>
-<text x="50" y="194" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ authGuard · roleGuard</text>
-<text x="50" y="211" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ shared-auth/data-access</text>
-<rect x="72" y="238" width="100" height="20" rx="10" fill="rgba(91,141,238,.2)" stroke="rgba(91,141,238,.5)" stroke-width="1"/>
-<text x="122" y="253" text-anchor="middle" font-size="11" fill="#5b8dee" font-family="Consolas,monospace">:4200</text>
+    subgraph API["⚡ Quarkus 3.20 — porta :8080"]
+        RES["MatrizResource<br/>MatriculaResource<br/>ReferenciaResource"]
+        SVC["MatrizService<br/>MatriculaService"]
+        OIDC["OIDC Verifier<br/>@RolesAllowed"]
+        RES --> SVC
+        OIDC --> RES
+    end
 
-<!-- KEYCLOAK -->
-<rect x="310" y="55" width="200" height="200" rx="10" fill="#1a1d27" stroke="#7c6af7" stroke-width="2"/>
-<rect x="310" y="55" width="200" height="32" rx="10" fill="#7c6af7"/>
-<rect x="310" y="75" width="200" height="12" rx="0" fill="#7c6af7"/>
-<text x="410" y="76" text-anchor="middle" font-size="12" fill="#fff" font-weight="700" font-family="Segoe UI,sans-serif">Keycloak 24</text>
-<text x="410" y="104" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">IAM · porta 8180</text>
-<text x="330" y="126" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ Realm: unifor</text>
-<text x="330" y="143" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ PKCE + S256</text>
-<text x="330" y="160" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ Role: ALUNO</text>
-<text x="330" y="177" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ Role: COORDENADOR</text>
-<text x="330" y="194" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ 8 usuários teste</text>
-<text x="330" y="211" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ Tema PT-BR custom</text>
-<rect x="360" y="238" width="100" height="20" rx="10" fill="rgba(124,106,247,.2)" stroke="rgba(124,106,247,.5)" stroke-width="1"/>
-<text x="410" y="253" text-anchor="middle" font-size="11" fill="#7c6af7" font-family="Consolas,monospace">:8180</text>
+    subgraph DB["🗄️ PostgreSQL 16 — porta :5432"]
+        SCHEMA["unifor_db<br/>init.sql + seed data<br/>Hibernate validate"]
+    end
 
-<!-- QUARKUS -->
-<rect x="600" y="55" width="200" height="200" rx="10" fill="#1a1d27" stroke="#3ecf8e" stroke-width="2"/>
-<rect x="600" y="55" width="200" height="32" rx="10" fill="#3ecf8e"/>
-<rect x="600" y="75" width="200" height="12" rx="0" fill="#3ecf8e"/>
-<text x="700" y="76" text-anchor="middle" font-size="12" fill="#0f1117" font-weight="700" font-family="Segoe UI,sans-serif">Quarkus 3.20</text>
-<text x="700" y="104" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">REST API · porta 8080</text>
-<text x="620" y="126" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ Kotlin 2.0</text>
-<text x="620" y="143" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ @RolesAllowed</text>
-<text x="620" y="160" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ Panache Active Record</text>
-<text x="620" y="177" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ OIDC declarativo</text>
-<text x="620" y="194" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ PESSIMISTIC_WRITE</text>
-<text x="620" y="211" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ Swagger /q/swagger-ui</text>
-<rect x="650" y="238" width="100" height="20" rx="10" fill="rgba(62,207,142,.2)" stroke="rgba(62,207,142,.5)" stroke-width="1"/>
-<text x="700" y="253" text-anchor="middle" font-size="11" fill="#3ecf8e" font-family="Consolas,monospace">:8080</text>
+    SPA -- "① PKCE redirect" --> KC
+    KC -- "② access_token JWT" --> SPA
+    SPA -- "③ Bearer JWT" --> API
+    KC -- "④ OIDC discovery / token verify" --> API
+    API -- "⑤ JPA / Panache" --> DB
+    KC -. "realm store" .-> DB
 
-<!-- POSTGRES -->
-<rect x="440" y="350" width="200" height="110" rx="10" fill="#1a1d27" stroke="#f0c040" stroke-width="2"/>
-<rect x="440" y="350" width="200" height="32" rx="10" fill="#f0c040"/>
-<rect x="440" y="370" width="200" height="12" rx="0" fill="#f0c040"/>
-<text x="540" y="371" text-anchor="middle" font-size="12" fill="#0f1117" font-weight="700" font-family="Segoe UI,sans-serif">PostgreSQL 16</text>
-<text x="540" y="402" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">porta 5432 · unifor_db</text>
-<text x="460" y="422" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ init.sql + seed data</text>
-<text x="460" y="440" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">▸ Hibernate validate</text>
-
-<!-- Angular ↔ Keycloak -->
-<line x1="215" y1="140" x2="308" y2="140" stroke="#7c6af7" stroke-width="1.8" marker-end="url(#mp)" marker-start="url(#mp)"/>
-<rect x="224" y="128" width="70" height="16" rx="3" fill="#1a1d27"/>
-<text x="259" y="140" text-anchor="middle" font-size="10" fill="#7c6af7" font-family="Segoe UI,sans-serif">PKCE/OIDC</text>
-
-<!-- Angular → Quarkus -->
-<line x1="215" y1="180" x2="598" y2="180" stroke="#5b8dee" stroke-width="1.8" marker-end="url(#ma)"/>
-<rect x="334" y="168" width="82" height="16" rx="3" fill="#1a1d27"/>
-<text x="375" y="180" text-anchor="middle" font-size="10" fill="#5b8dee" font-family="Segoe UI,sans-serif">Bearer JWT</text>
-
-<!-- Keycloak ↔ Quarkus -->
-<line x1="510" y1="160" x2="598" y2="160" stroke="#7c6af7" stroke-width="1.8" marker-end="url(#mp)" marker-start="url(#mp)"/>
-<rect x="516" y="148" width="70" height="16" rx="3" fill="#1a1d27"/>
-<text x="551" y="160" text-anchor="middle" font-size="10" fill="#7c6af7" font-family="Segoe UI,sans-serif">OIDC verify</text>
-
-<!-- Quarkus → Postgres -->
-<line x1="700" y1="257" x2="650" y2="348" stroke="#3ecf8e" stroke-width="1.8" marker-end="url(#mg)"/>
-<rect x="655" y="296" width="54" height="16" rx="3" fill="#1a1d27"/>
-<text x="682" y="308" text-anchor="middle" font-size="10" fill="#3ecf8e" font-family="Segoe UI,sans-serif">JDBC/JPA</text>
-
-<!-- Keycloak → Postgres -->
-<line x1="410" y1="257" x2="495" y2="348" stroke="#7c6af7" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#mp)"/>
-<rect x="416" y="296" width="66" height="16" rx="3" fill="#1a1d27"/>
-<text x="449" y="308" text-anchor="middle" font-size="10" fill="#7c6af7" font-family="Segoe UI,sans-serif">realm store</text>
-
-<!-- depends_on note -->
-<text x="20" y="477" font-size="10.5" fill="#546e7a" font-family="Segoe UI,sans-serif">⚙ depends_on + healthcheck: postgres → keycloak → backend → frontend</text>
-</svg>
-</div>
-<div class="leg">
-  <div class="li"><div class="ld" style="background:#5b8dee"></div>Angular SPA</div>
-  <div class="li"><div class="ld" style="background:#7c6af7"></div>Keycloak (IAM)</div>
-  <div class="li"><div class="ld" style="background:#3ecf8e"></div>Quarkus (Backend)</div>
-  <div class="li"><div class="ld" style="background:#f0c040"></div>PostgreSQL</div>
-</div>
-<div class="cal cb"><strong>Por que separar IAM do Backend?</strong>O Keycloak centraliza autenticação — o Quarkus não gerencia senhas, apenas valida o JWT via OIDC discovery. Isso permite trocar o IdP no futuro sem tocar no código de negócio.</div>
+    style Browser fill:#1a1d27,stroke:#5b8dee,color:#e2e6f0
+    style KC     fill:#1a1d27,stroke:#7c6af7,color:#e2e6f0
+    style API    fill:#1a1d27,stroke:#3ecf8e,color:#e2e6f0
+    style DB     fill:#1a1d27,stroke:#f0c040,color:#e2e6f0
+    </div>
+  </div>
+  <div class="cal cb">
+    <strong>Por que separar IAM do Backend?</strong>
+    O Keycloak centraliza autenticação — o Quarkus não armazena senhas, apenas valida o JWT via
+    <code>OIDC discovery endpoint</code>. Isso isola a camada de segurança e permite trocar o
+    Identity Provider no futuro sem alterar nenhuma linha do código de negócio.
+  </div>
 </div>
 
 <!-- ═══════════════════ ERD ═══════════════════ -->
 <div id="erd" class="pnl">
-<div class="ptit">🗂️ Diagrama de Entidades (ERD)</div>
-<div class="psub">Modelo de dados completo com cardinalidades, PKs, FKs e constraints críticas.</div>
-<div class="wrap">
-<svg width="820" height="600" viewBox="0 0 820 600" xmlns="http://www.w3.org/2000/svg">
-<defs>
-  <marker id="eb" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#5b8dee"/></marker>
-  <marker id="eg" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#3ecf8e"/></marker>
-  <marker id="ep" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#7c6af7"/></marker>
-  <marker id="eo" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#f0a040"/></marker>
-</defs>
+  <div class="ptit">🗂️ Diagrama de Entidades (ERD)</div>
+  <div class="psub">Modelo de dados completo extraído das entidades JPA Panache. Cardinalidades, PKs, FKs e constraints críticas refletem exatamente o código em <code>domain/</code>.</div>
+  <div class="wrap">
+    <div class="mermaid">
+erDiagram
+    DISCIPLINA {
+        uuid id PK
+        string nome
+        int    carga_horaria
+        text   ementa
+    }
+    PROFESSOR {
+        uuid   id    PK
+        string nome
+        string email "UNIQUE"
+    }
+    HORARIO {
+        uuid      id          PK
+        string    dia_semana
+        time      hora_inicio
+        time      hora_fim
+        string    periodo     "MANHA|TARDE|NOITE"
+    }
+    COORDENADOR {
+        uuid   id           PK
+        string nome
+        string email        "UNIQUE"
+        string keycloak_id  "UNIQUE"
+    }
+    CURSO {
+        uuid   id   PK
+        string nome
+        text   descricao
+    }
+    AULA_MATRIZ {
+        uuid id            PK
+        uuid disciplina_id FK
+        uuid professor_id  FK
+        uuid horario_id    FK
+        uuid coordenador_id FK
+        int  max_alunos
+        bool ativo         "soft-delete"
+    }
+    AULA_MATRIZ_CURSO {
+        uuid aula_matriz_id FK
+        uuid curso_id       FK
+    }
+    ALUNO {
+        uuid   id          PK
+        string nome
+        string email       "UNIQUE"
+        string matricula   "UNIQUE"
+        string keycloak_id "UNIQUE"
+        uuid   curso_id    FK
+    }
+    MATRICULA {
+        uuid      id             PK
+        uuid      aluno_id       FK
+        uuid      aula_matriz_id FK
+        timestamp data_matricula
+        bool      ativo          "soft-delete"
+    }
 
-<!-- AULA_MATRIZ (centro) -->
-<rect x="290" y="195" width="240" height="215" rx="10" fill="#1a1d27" stroke="#3ecf8e" stroke-width="2.5"/>
-<rect x="290" y="195" width="240" height="32" rx="10" fill="#3ecf8e"/>
-<rect x="290" y="215" width="240" height="12" rx="0" fill="#3ecf8e"/>
-<text x="410" y="217" text-anchor="middle" font-size="12" fill="#0f1117" font-weight="700" font-family="Segoe UI,sans-serif">AULA_MATRIZ</text>
-<line x1="290" y1="240" x2="530" y2="240" stroke="#2e3350" stroke-width="1"/>
-<text x="306" y="258" font-size="10.5" fill="#f0c040" font-family="Consolas,monospace">🔑 id  UUID  PK</text>
-<text x="306" y="275" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   disciplina_id   FK</text>
-<text x="306" y="292" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   professor_id    FK</text>
-<text x="306" y="309" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   horario_id      FK</text>
-<text x="306" y="326" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   coordenador_id  FK</text>
-<text x="306" y="343" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   max_alunos      INT</text>
-<text x="306" y="360" font-size="10.5" fill="#e05c5c" font-family="Consolas,monospace">   ativo  BOOL  (soft-del)</text>
-<text x="306" y="396" font-size="10" fill="#546e7a" font-family="Consolas,monospace">idx: ativo, horario_id</text>
-
-<!-- DISCIPLINA -->
-<rect x="20" y="55" width="175" height="130" rx="10" fill="#1a1d27" stroke="#5b8dee" stroke-width="2"/>
-<rect x="20" y="55" width="175" height="30" rx="10" fill="#5b8dee"/>
-<rect x="20" y="73" width="175" height="12" rx="0" fill="#5b8dee"/>
-<text x="107" y="75" text-anchor="middle" font-size="12" fill="#fff" font-weight="700" font-family="Segoe UI,sans-serif">DISCIPLINA</text>
-<line x1="20" y1="97" x2="195" y2="97" stroke="#2e3350" stroke-width="1"/>
-<text x="36" y="114" font-size="10.5" fill="#f0c040" font-family="Consolas,monospace">🔑 id  UUID  PK</text>
-<text x="36" y="131" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   nome  VARCHAR</text>
-<text x="36" y="148" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   carga_horaria INT</text>
-<text x="36" y="165" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   ementa TEXT</text>
-
-<!-- PROFESSOR -->
-<rect x="20" y="225" width="175" height="115" rx="10" fill="#1a1d27" stroke="#5b8dee" stroke-width="2"/>
-<rect x="20" y="225" width="175" height="30" rx="10" fill="#5b8dee"/>
-<rect x="20" y="243" width="175" height="12" rx="0" fill="#5b8dee"/>
-<text x="107" y="245" text-anchor="middle" font-size="12" fill="#fff" font-weight="700" font-family="Segoe UI,sans-serif">PROFESSOR</text>
-<line x1="20" y1="267" x2="195" y2="267" stroke="#2e3350" stroke-width="1"/>
-<text x="36" y="284" font-size="10.5" fill="#f0c040" font-family="Consolas,monospace">🔑 id  UUID  PK</text>
-<text x="36" y="301" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   nome  VARCHAR</text>
-<text x="36" y="318" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   email UNIQUE</text>
-
-<!-- HORARIO -->
-<rect x="20" y="385" width="175" height="145" rx="10" fill="#1a1d27" stroke="#5b8dee" stroke-width="2"/>
-<rect x="20" y="385" width="175" height="30" rx="10" fill="#5b8dee"/>
-<rect x="20" y="403" width="175" height="12" rx="0" fill="#5b8dee"/>
-<text x="107" y="405" text-anchor="middle" font-size="12" fill="#fff" font-weight="700" font-family="Segoe UI,sans-serif">HORARIO</text>
-<line x1="20" y1="427" x2="195" y2="427" stroke="#2e3350" stroke-width="1"/>
-<text x="36" y="444" font-size="10.5" fill="#f0c040" font-family="Consolas,monospace">🔑 id  UUID  PK</text>
-<text x="36" y="461" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   dia_semana ENUM</text>
-<text x="36" y="478" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   hora_inicio TIME</text>
-<text x="36" y="495" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   hora_fim    TIME</text>
-<text x="36" y="512" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   periodo ENUM</text>
-
-<!-- COORDENADOR -->
-<rect x="610" y="55" width="190" height="130" rx="10" fill="#1a1d27" stroke="#7c6af7" stroke-width="2"/>
-<rect x="610" y="55" width="190" height="30" rx="10" fill="#7c6af7"/>
-<rect x="610" y="73" width="190" height="12" rx="0" fill="#7c6af7"/>
-<text x="705" y="75" text-anchor="middle" font-size="12" fill="#fff" font-weight="700" font-family="Segoe UI,sans-serif">COORDENADOR</text>
-<line x1="610" y1="97" x2="800" y2="97" stroke="#2e3350" stroke-width="1"/>
-<text x="626" y="114" font-size="10.5" fill="#f0c040" font-family="Consolas,monospace">🔑 id  UUID  PK</text>
-<text x="626" y="131" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   nome  VARCHAR</text>
-<text x="626" y="148" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   email UNIQUE</text>
-<text x="626" y="165" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   keycloak_id UUID</text>
-
-<!-- CURSO -->
-<rect x="610" y="230" width="190" height="115" rx="10" fill="#1a1d27" stroke="#f0a040" stroke-width="2"/>
-<rect x="610" y="230" width="190" height="30" rx="10" fill="#f0a040"/>
-<rect x="610" y="248" width="190" height="12" rx="0" fill="#f0a040"/>
-<text x="705" y="250" text-anchor="middle" font-size="12" fill="#0f1117" font-weight="700" font-family="Segoe UI,sans-serif">CURSO</text>
-<line x1="610" y1="272" x2="800" y2="272" stroke="#2e3350" stroke-width="1"/>
-<text x="626" y="289" font-size="10.5" fill="#f0c040" font-family="Consolas,monospace">🔑 id  UUID  PK</text>
-<text x="626" y="306" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   nome  VARCHAR</text>
-<text x="626" y="323" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   descricao TEXT</text>
-
-<!-- AULA_MATRIZ_CURSO (junction) -->
-<rect x="610" y="390" width="190" height="100" rx="10" fill="#1a1d27" stroke="#f0a040" stroke-width="1.5" stroke-dasharray="5,3"/>
-<rect x="610" y="390" width="190" height="30" rx="10" fill="rgba(240,160,64,.22)"/>
-<rect x="610" y="408" width="190" height="12" rx="0" fill="rgba(240,160,64,.22)"/>
-<text x="705" y="410" text-anchor="middle" font-size="11" fill="#f0a040" font-weight="700" font-family="Segoe UI,sans-serif">AULA_MATRIZ_CURSO</text>
-<line x1="610" y1="432" x2="800" y2="432" stroke="#2e3350" stroke-width="1"/>
-<text x="626" y="449" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   aula_matriz_id FK</text>
-<text x="626" y="466" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   curso_id FK</text>
-<text x="626" y="480" font-size="10" fill="#546e7a" font-family="Consolas,monospace">PK(aula_id, curso_id)</text>
-
-<!-- ALUNO -->
-<rect x="290" y="470" width="240" height="115" rx="10" fill="#1a1d27" stroke="#3ecf8e" stroke-width="2"/>
-<rect x="290" y="470" width="240" height="30" rx="10" fill="rgba(62,207,142,.35)"/>
-<rect x="290" y="488" width="240" height="12" rx="0" fill="rgba(62,207,142,.35)"/>
-<text x="410" y="490" text-anchor="middle" font-size="12" fill="#fff" font-weight="700" font-family="Segoe UI,sans-serif">ALUNO</text>
-<line x1="290" y1="512" x2="530" y2="512" stroke="#2e3350" stroke-width="1"/>
-<text x="306" y="529" font-size="10.5" fill="#f0c040" font-family="Consolas,monospace">🔑 id  UUID  PK</text>
-<text x="306" y="546" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   nome · email · keycloak_id</text>
-<text x="306" y="563" font-size="10.5" fill="#a0b0d0" font-family="Consolas,monospace">   matricula UNIQUE · curso_id FK</text>
-
-<!-- RELATIONSHIPS -->
-<!-- DISCIPLINA → AULA_MATRIZ -->
-<path d="M 195 115 Q 260 115 290 265" fill="none" stroke="#5b8dee" stroke-width="1.5" marker-end="url(#eb)"/>
-<text x="206" y="165" font-size="10" fill="#5b8dee" font-family="Segoe UI,sans-serif">N : 1</text>
-
-<!-- PROFESSOR → AULA_MATRIZ -->
-<line x1="195" y1="285" x2="288" y2="293" stroke="#5b8dee" stroke-width="1.5" marker-end="url(#eb)"/>
-<text x="208" y="279" font-size="10" fill="#5b8dee" font-family="Segoe UI,sans-serif">N : 1</text>
-
-<!-- HORARIO → AULA_MATRIZ -->
-<path d="M 195 455 Q 255 455 290 340" fill="none" stroke="#5b8dee" stroke-width="1.5" marker-end="url(#eb)"/>
-<text x="200" y="407" font-size="10" fill="#5b8dee" font-family="Segoe UI,sans-serif">N : 1</text>
-
-<!-- COORDENADOR → AULA_MATRIZ -->
-<path d="M 610 115 Q 560 115 530 275" fill="none" stroke="#7c6af7" stroke-width="1.5" marker-end="url(#ep)"/>
-<text x="560" y="180" font-size="10" fill="#7c6af7" font-family="Segoe UI,sans-serif">N : 1</text>
-
-<!-- CURSO ↔ AULA_MATRIZ (via junction) -->
-<line x1="610" y1="290" x2="532" y2="310" stroke="#f0a040" stroke-width="1.5" marker-end="url(#eo)"/>
-<line x1="610" y1="435" x2="532" y2="345" stroke="#f0a040" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#eo)"/>
-<text x="558" y="378" font-size="10" fill="#f0a040" font-family="Segoe UI,sans-serif">N : M</text>
-
-<!-- ALUNO → AULA_MATRIZ via MATRICULA -->
-<line x1="410" y1="468" x2="410" y2="412" stroke="#3ecf8e" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#eg)"/>
-<rect x="325" y="425" width="170" height="17" rx="4" fill="#1a1d27"/>
-<text x="410" y="437" text-anchor="middle" font-size="10" fill="#3ecf8e" font-family="Segoe UI,sans-serif">via MATRICULA (ativo + UNIQUE)</text>
-</svg>
-</div>
-<div class="leg">
-  <div class="li"><div class="ld" style="background:#5b8dee"></div>Entidades pré-cadastradas (referência)</div>
-  <div class="li"><div class="ld" style="background:#3ecf8e"></div>Entidades transacionais</div>
-  <div class="li"><div class="ld" style="background:#7c6af7"></div>Controle de acesso</div>
-  <div class="li"><div class="ld" style="background:#f0a040;border:1px dashed #f0a040"></div>Tabela de junção N:M</div>
-  <div class="li"><div class="ld" style="background:#f0c040"></div>PK</div>
-</div>
-<div class="cal cy"><strong>UNIQUE(aluno_id, aula_matriz_id) + soft-delete + upsert</strong>A constraint impede duplicatas no banco. <code>ativo=false</code> preserva histórico acadêmico. O upsert reativa registros cancelados em vez de inserir novos — elimina <code>ConstraintViolationException</code> mantendo integridade.</div>
+    DISCIPLINA    ||--o{ AULA_MATRIZ       : "1 disciplina → N aulas"
+    PROFESSOR     ||--o{ AULA_MATRIZ       : "1 professor → N aulas"
+    HORARIO       ||--o{ AULA_MATRIZ       : "1 horario → N aulas"
+    COORDENADOR   ||--o{ AULA_MATRIZ       : "1 coord → N aulas"
+    AULA_MATRIZ   ||--o{ AULA_MATRIZ_CURSO : "aula tem cursos"
+    CURSO         ||--o{ AULA_MATRIZ_CURSO : "curso em N aulas"
+    CURSO         ||--o{ ALUNO             : "curso tem N alunos"
+    ALUNO         ||--o{ MATRICULA         : "aluno faz N matriculas"
+    AULA_MATRIZ   ||--o{ MATRICULA         : "aula tem N matriculas"
+    </div>
+  </div>
+  <div class="cal cy">
+    <strong>UNIQUE(aluno_id, aula_matriz_id) + soft-delete + upsert</strong>
+    A constraint de banco impede duplicatas absolutas. O campo <code>ativo=false</code> preserva
+    histórico acadêmico sem deletar registros. O <code>MatriculaService</code> usa o padrão upsert:
+    se já existe uma matrícula cancelada para o mesmo par aluno/aula, ela é reativada em vez de
+    inserir uma nova linha — eliminando <code>ConstraintViolationException</code> sem abrir mão
+    da integridade referencial.
+  </div>
 </div>
 
 <!-- ═══════════════════ FLUXO MATRÍCULA ═══════════════════ -->
 <div id="flow" class="pnl">
-<div class="ptit">🔄 Fluxograma de Matrícula — Critical Path</div>
-<div class="psub">Sequência completa do clique do aluno até o COMMIT com lock pessimista no PostgreSQL.</div>
-<div class="wrap">
-<svg width="820" height="620" viewBox="0 0 820 620" xmlns="http://www.w3.org/2000/svg">
-<defs>
-  <marker id="fd" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#5b8dee"/></marker>
-  <marker id="fg" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#3ecf8e"/></marker>
-  <marker id="fy" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#f0c040"/></marker>
-  <marker id="fr" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#e05c5c"/></marker>
-  <marker id="fp" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#7c6af7"/></marker>
-</defs>
+  <div class="ptit">🔄 Fluxograma de Matrícula — Critical Path</div>
+  <div class="psub">Sequência completa desde o clique do aluno até o COMMIT no PostgreSQL, incluindo o lock pessimista e todos os pontos de falha com HTTP 409.</div>
+  <div class="wrap">
+    <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Aluno
+    participant Store as NgRx Signal Store
+    participant API   as Quarkus MatriculaService
+    participant DB    as PostgreSQL
 
-<!-- Lane headers -->
-<rect x="0" y="0" width="820" height="48" fill="#12152b"/>
-<line x1="205" y1="0" x2="205" y2="620" stroke="#2e3350" stroke-width="1" stroke-dasharray="3,4"/>
-<line x1="410" y1="0" x2="410" y2="620" stroke="#2e3350" stroke-width="1" stroke-dasharray="3,4"/>
-<line x1="615" y1="0" x2="615" y2="620" stroke="#2e3350" stroke-width="1" stroke-dasharray="3,4"/>
-<rect x="0" y="0" width="205" height="48" fill="rgba(62,207,142,.09)"/>
-<text x="102" y="28" text-anchor="middle" font-size="12" fill="#3ecf8e" font-weight="700" font-family="Segoe UI,sans-serif">👤 Aluno</text>
-<rect x="205" y="0" width="205" height="48" fill="rgba(91,141,238,.09)"/>
-<text x="307" y="28" text-anchor="middle" font-size="12" fill="#5b8dee" font-weight="700" font-family="Segoe UI,sans-serif">⚛️ Angular Store</text>
-<rect x="410" y="0" width="205" height="48" fill="rgba(124,106,247,.09)"/>
-<text x="512" y="28" text-anchor="middle" font-size="12" fill="#7c6af7" font-weight="700" font-family="Segoe UI,sans-serif">⚡ Quarkus Service</text>
-<rect x="615" y="0" width="205" height="48" fill="rgba(240,192,64,.09)"/>
-<text x="717" y="28" text-anchor="middle" font-size="12" fill="#f0c040" font-weight="700" font-family="Segoe UI,sans-serif">🗄️ PostgreSQL</text>
+    Aluno  ->> Store : store.matricular(aulaMatrizId)
+    Store  ->> Store : patchState loading=true, error=null
+    Store  ->> API   : POST /api/v1/matricula Bearer JWT
 
-<!-- Step 1: Clica -->
-<rect x="18" y="72" width="170" height="36" rx="8" fill="#1a1d27" stroke="#3ecf8e" stroke-width="2"/>
-<text x="103" y="89" text-anchor="middle" font-size="11" fill="#3ecf8e" font-weight="600" font-family="Segoe UI,sans-serif">Clica "Matricular"</text>
-<text x="103" y="103" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">store.matricular(aulaId)</text>
-<line x1="188" y1="90" x2="218" y2="90" stroke="#5b8dee" stroke-width="1.5" marker-end="url(#fd)"/>
+    API    ->> DB    : BEGIN TRANSACTION
+    API    ->> DB    : SELECT * FROM aula_matriz WHERE id=? FOR UPDATE
+    Note over DB     : PESSIMISTIC_WRITE — bloqueia linha<br/>2º aluno aguarda na fila do banco
 
-<!-- Step 2: loading -->
-<rect x="222" y="72" width="170" height="36" rx="8" fill="#1a1d27" stroke="#5b8dee" stroke-width="1.5"/>
-<text x="307" y="88" text-anchor="middle" font-size="11" fill="#5b8dee" font-family="Segoe UI,sans-serif">patchState</text>
-<text x="307" y="103" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Consolas,monospace">loading=true, error=null</text>
-<line x1="392" y1="90" x2="422" y2="90" stroke="#7c6af7" stroke-width="1.5" marker-end="url(#fp)"/>
-
-<!-- Step 3: POST -->
-<rect x="426" y="72" width="170" height="36" rx="8" fill="#1a1d27" stroke="#7c6af7" stroke-width="1.5"/>
-<text x="511" y="88" text-anchor="middle" font-size="11" fill="#7c6af7" font-family="Segoe UI,sans-serif">POST /api/v1/matricula</text>
-<text x="511" y="103" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">Bearer JWT</text>
-
-<!-- BEGIN TX -->
-<line x1="511" y1="108" x2="511" y2="134" stroke="#7c6af7" stroke-width="1.5"/>
-<line x1="511" y1="134" x2="716" y2="134" stroke="#f0c040" stroke-width="1.5" marker-end="url(#fy)"/>
-<rect x="536" y="122" width="116" height="16" rx="3" fill="#1a1d27"/>
-<text x="594" y="134" text-anchor="middle" font-size="10" fill="#f0c040" font-family="Consolas,monospace">BEGIN TRANSACTION</text>
-
-<!-- SELECT FOR UPDATE -->
-<rect x="630" y="150" width="175" height="36" rx="8" fill="#1a1d27" stroke="#f0c040" stroke-width="2.5"/>
-<text x="717" y="166" text-anchor="middle" font-size="11" fill="#f0c040" font-weight="700" font-family="Consolas,monospace">SELECT FOR UPDATE</text>
-<text x="717" y="181" text-anchor="middle" font-size="10" fill="#e05c5c" font-family="Segoe UI,sans-serif">PESSIMISTIC_WRITE 🔒</text>
-<line x1="630" y1="168" x2="615" y2="168" stroke="#f0c040" stroke-width="1.5" marker-end="url(#fy)"/>
-
-<!-- VALIDAÇÕES (diamantes) -->
-<!-- val vagas -->
-<polygon points="511,225 564,250 511,275 458,250" fill="#1a1d27" stroke="#7c6af7" stroke-width="1.5"/>
-<text x="511" y="246" text-anchor="middle" font-size="10" fill="#7c6af7" font-family="Segoe UI,sans-serif">vagas</text>
-<text x="511" y="260" text-anchor="middle" font-size="10" fill="#7c6af7" font-family="Segoe UI,sans-serif">&gt; 0?</text>
-<line x1="511" y1="190" x2="511" y2="223" stroke="#7c6af7" stroke-width="1.5" marker-end="url(#fp)"/>
-<line x1="458" y1="250" x2="408" y2="250" stroke="#e05c5c" stroke-width="1.5" marker-end="url(#fr)"/>
-<text x="434" y="244" text-anchor="middle" font-size="10" fill="#e05c5c" font-family="Segoe UI,sans-serif">NÃO</text>
-
-<!-- val curso -->
-<polygon points="511,305 564,330 511,355 458,330" fill="#1a1d27" stroke="#7c6af7" stroke-width="1.5"/>
-<text x="511" y="325" text-anchor="middle" font-size="10" fill="#7c6af7" font-family="Segoe UI,sans-serif">curso</text>
-<text x="511" y="340" text-anchor="middle" font-size="10" fill="#7c6af7" font-family="Segoe UI,sans-serif">autorizado?</text>
-<line x1="511" y1="275" x2="511" y2="303" stroke="#7c6af7" stroke-width="1.5" marker-end="url(#fp)"/>
-<line x1="458" y1="330" x2="408" y2="330" stroke="#e05c5c" stroke-width="1.5" marker-end="url(#fr)"/>
-<text x="434" y="324" text-anchor="middle" font-size="10" fill="#e05c5c" font-family="Segoe UI,sans-serif">NÃO</text>
-
-<!-- val horario -->
-<polygon points="511,385 564,410 511,435 458,410" fill="#1a1d27" stroke="#7c6af7" stroke-width="1.5"/>
-<text x="511" y="405" text-anchor="middle" font-size="10" fill="#7c6af7" font-family="Segoe UI,sans-serif">sem</text>
-<text x="511" y="420" text-anchor="middle" font-size="10" fill="#7c6af7" font-family="Segoe UI,sans-serif">choque?</text>
-<line x1="511" y1="355" x2="511" y2="383" stroke="#7c6af7" stroke-width="1.5" marker-end="url(#fp)"/>
-<line x1="458" y1="410" x2="408" y2="410" stroke="#e05c5c" stroke-width="1.5" marker-end="url(#fr)"/>
-<text x="434" y="404" text-anchor="middle" font-size="10" fill="#e05c5c" font-family="Segoe UI,sans-serif">NÃO</text>
-
-<!-- Bloco de erro 409 -->
-<rect x="218" y="228" width="182" height="220" rx="8" fill="rgba(224,92,92,.07)" stroke="#e05c5c" stroke-width="1.5" stroke-dasharray="5,3"/>
-<text x="309" y="250" text-anchor="middle" font-size="11" fill="#e05c5c" font-weight="700" font-family="Segoe UI,sans-serif">409 Conflict</text>
-<text x="309" y="270" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">Sem vagas disponíveis</text>
-<text x="309" y="288" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">Curso não autorizado</text>
-<text x="309" y="306" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">Choque de horário</text>
-<line x1="309" y1="313" x2="309" y2="333" stroke="#e05c5c" stroke-width="1.5" marker-end="url(#fr)"/>
-<rect x="222" y="333" width="174" height="34" rx="6" fill="rgba(224,92,92,.15)" stroke="#e05c5c" stroke-width="1"/>
-<text x="309" y="348" text-anchor="middle" font-size="11" fill="#e05c5c" font-weight="600" font-family="Segoe UI,sans-serif">patchState error</text>
-<text x="309" y="362" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">loading=false · toast ❌</text>
-<line x1="309" y1="367" x2="309" y2="387" stroke="#e05c5c" stroke-width="1.5"/>
-<line x1="309" y1="387" x2="102" y2="387" stroke="#e05c5c" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#fr)"/>
-<rect x="222" y="388" width="174" height="24" rx="4" fill="#1a1d27"/>
-<text x="309" y="404" text-anchor="middle" font-size="10" fill="#e05c5c" font-family="Segoe UI,sans-serif">ROLLBACK automático</text>
-
-<!-- SIM path → INSERT -->
-<line x1="511" y1="435" x2="511" y2="462" stroke="#3ecf8e" stroke-width="2" marker-end="url(#fg)"/>
-<text x="523" y="455" font-size="10" fill="#3ecf8e" font-family="Segoe UI,sans-serif">SIM ✓</text>
-<rect x="426" y="462" width="170" height="36" rx="8" fill="#1a1d27" stroke="#3ecf8e" stroke-width="2"/>
-<text x="511" y="478" text-anchor="middle" font-size="11" fill="#3ecf8e" font-family="Consolas,monospace">INSERT matricula</text>
-<text x="511" y="493" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">ativo=true</text>
-<line x1="596" y1="480" x2="628" y2="480" stroke="#f0c040" stroke-width="1.5" marker-end="url(#fy)"/>
-
-<!-- COMMIT -->
-<rect x="630" y="462" width="175" height="36" rx="8" fill="rgba(240,192,64,.13)" stroke="#f0c040" stroke-width="2"/>
-<text x="717" y="478" text-anchor="middle" font-size="11" fill="#f0c040" font-weight="700" font-family="Consolas,monospace">COMMIT 🔓</text>
-<text x="717" y="493" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">lock liberado</text>
-
-<!-- 201 Created -->
-<line x1="511" y1="498" x2="511" y2="522" stroke="#3ecf8e" stroke-width="1.5"/>
-<line x1="511" y1="522" x2="394" y2="522" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#fg)"/>
-<rect x="416" y="510" width="86" height="16" rx="3" fill="#1a1d27"/>
-<text x="459" y="522" text-anchor="middle" font-size="10" fill="#3ecf8e" font-family="Segoe UI,sans-serif">201 Created</text>
-
-<!-- Store success -->
-<rect x="222" y="507" width="170" height="36" rx="8" fill="#1a1d27" stroke="#3ecf8e" stroke-width="1.5"/>
-<text x="307" y="523" text-anchor="middle" font-size="11" fill="#3ecf8e" font-family="Segoe UI,sans-serif">patchState success</text>
-<text x="307" y="538" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">+matricula −disponivel</text>
-<line x1="222" y1="525" x2="190" y2="525" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#fg)"/>
-
-<!-- Toast success -->
-<rect x="18" y="507" width="170" height="36" rx="8" fill="rgba(62,207,142,.1)" stroke="#3ecf8e" stroke-width="2"/>
-<text x="103" y="523" text-anchor="middle" font-size="11" fill="#3ecf8e" font-weight="700" font-family="Segoe UI,sans-serif">Toast ✅ Sucesso!</text>
-<text x="103" y="538" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">Matrícula realizada</text>
-
-<!-- LOCK note -->
-<rect x="626" y="270" width="180" height="64" rx="8" fill="rgba(240,192,64,.06)" stroke="#f0c040" stroke-width="1" stroke-dasharray="4,2"/>
-<text x="716" y="292" text-anchor="middle" font-size="10" fill="#f0c040" font-weight="700" font-family="Segoe UI,sans-serif">🔒 PESSIMISTIC_WRITE</text>
-<text x="716" y="310" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">2º aluno aguarda</text>
-<text x="716" y="325" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">o 1º commitar</text>
-</svg>
-</div>
-<div class="cal cp"><strong>Por que PESSIMISTIC_WRITE elimina race condition?</strong>O <code>SELECT FOR UPDATE</code> bloqueia a linha de <code>aula_matriz</code> na transação. Se dois alunos clicam simultaneamente, o segundo aguarda na fila do banco — não chega às validações até o primeiro commitar. Resultado: impossível dois alunos ocuparem a mesma vaga.</div>
+    alt aulaMatriz.ativo = false
+        API -->> Store : 404 Not Found
+        Store ->> Store: patchState error=msg
+        Store -->> Aluno: toast ❌ Aula não encontrada
+    else curso não autorizado
+        API -->> Store : 409 Conflict
+        Store ->> Store: patchState error=msg
+        Store -->> Aluno: toast ❌ Curso não autorizado
+    else sem vagas disponíveis
+        Note over API  : COUNT matriculas ativas >= maxAlunos
+        API -->> Store : 409 Conflict
+        Store ->> Store: patchState error=msg
+        Store -->> Aluno: toast ❌ Sem vagas disponíveis
+    else choque de horário
+        Note over API  : JPQL: dia_semana + overlap horaInicio/horaFim
+        API -->> Store : 409 Conflict
+        Store ->> Store: patchState error=msg
+        Store -->> Aluno: toast ❌ Choque de horário
+    else aluno já matriculado e ativo
+        API -->> Store : 409 Conflict
+        Store -->> Aluno: toast ❌ Já matriculado
+    else tudo OK — upsert
+        Note over API  : reativa ativo=false OU insert novo
+        API    ->> DB  : INSERT / UPDATE matricula SET ativo=true
+        DB     ->> API : COMMIT — lock liberado
+        API  -->> Store: 201 Created MatriculaResponse
+        Store ->> Store: patchState successMessage, +matricula, -disponivel
+        Store -->> Aluno: toast ✅ Matrícula realizada!
+    end
+    </div>
+  </div>
+  <div class="cal cp">
+    <strong>Por que PESSIMISTIC_WRITE elimina race condition?</strong>
+    O <code>em.find(AulaMatriz::class.java, id, LockModeType.PESSIMISTIC_WRITE)</code> emite um
+    <code>SELECT FOR UPDATE</code> que bloqueia a linha no PostgreSQL. Se dois alunos clicam
+    simultaneamente, o segundo fica em espera no banco — não chega nem às validações — até o
+    primeiro commitar. Resultado: impossível dois alunos ocuparem a mesma última vaga.
+  </div>
 </div>
 
 <!-- ═══════════════════ AUTENTICAÇÃO ═══════════════════ -->
 <div id="auth" class="pnl">
-<div class="ptit">🔑 Fluxo de Autenticação — PKCE + JWT</div>
-<div class="psub">Authorization Code Flow com PKCE — padrão OAuth2 seguro para SPA sem <code>client_secret</code> no browser.</div>
-<div class="wrap">
-<svg width="820" height="580" viewBox="0 0 820 580" xmlns="http://www.w3.org/2000/svg">
-<defs>
-  <marker id="ab1" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#5b8dee"/></marker>
-  <marker id="ab2" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#7c6af7"/></marker>
-  <marker id="ab3" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 z" fill="#3ecf8e"/></marker>
-</defs>
+  <div class="ptit">🔑 Fluxo de Autenticação — PKCE + JWT</div>
+  <div class="psub">Authorization Code Flow com PKCE (S256) — padrão OAuth2 recomendado para SPA, sem <code>client_secret</code> exposto no navegador.</div>
+  <div class="wrap">
+    <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Usuario
+    participant SPA     as Angular SPA
+    participant KC      as Keycloak 24
+    participant Quarkus as Quarkus API
 
-<!-- Lanes -->
-<rect x="0" y="0" width="820" height="48" fill="#12152b"/>
-<line x1="205" y1="0" x2="205" y2="580" stroke="#2e3350" stroke-width="1" stroke-dasharray="3,4"/>
-<line x1="410" y1="0" x2="410" y2="580" stroke="#2e3350" stroke-width="1" stroke-dasharray="3,4"/>
-<line x1="615" y1="0" x2="615" y2="580" stroke="#2e3350" stroke-width="1" stroke-dasharray="3,4"/>
-<rect x="0" y="0" width="205" height="48" fill="rgba(62,207,142,.09)"/>
-<text x="102" y="28" text-anchor="middle" font-size="12" fill="#3ecf8e" font-weight="700" font-family="Segoe UI,sans-serif">👤 Usuário</text>
-<rect x="205" y="0" width="205" height="48" fill="rgba(91,141,238,.09)"/>
-<text x="307" y="28" text-anchor="middle" font-size="12" fill="#5b8dee" font-weight="700" font-family="Segoe UI,sans-serif">⚛️ Angular SPA</text>
-<rect x="410" y="0" width="205" height="48" fill="rgba(124,106,247,.09)"/>
-<text x="512" y="28" text-anchor="middle" font-size="12" fill="#7c6af7" font-weight="700" font-family="Segoe UI,sans-serif">🔑 Keycloak</text>
-<rect x="615" y="0" width="205" height="48" fill="rgba(62,207,142,.09)"/>
-<text x="717" y="28" text-anchor="middle" font-size="12" fill="#3ecf8e" font-weight="700" font-family="Segoe UI,sans-serif">⚡ Quarkus</text>
+    Usuario  ->> SPA     : acessa :4200 (rota protegida)
+    SPA      ->> SPA     : authGuard detecta sem token
+    SPA      ->> SPA     : gera code_verifier aleatório<br/>code_challenge = SHA256(verifier)
+    SPA      ->> KC      : redirect /auth?client_id=unifor-frontend<br/>&code_challenge=...&code_challenge_method=S256
 
-<!-- 1: SPA gera PKCE -->
-<rect x="222" y="68" width="170" height="36" rx="8" fill="#1a1d27" stroke="#5b8dee" stroke-width="1.5"/>
-<text x="307" y="83" text-anchor="middle" font-size="11" fill="#5b8dee" font-family="Segoe UI,sans-serif">① gera code_verifier</text>
-<text x="307" y="98" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Consolas,monospace">challenge=SHA256(v)</text>
-<text x="96" y="86" text-anchor="end" font-size="11" fill="#3ecf8e" font-family="Segoe UI,sans-serif" font-weight="600">acessa :4200</text>
-<line x1="100" y1="82" x2="220" y2="82" stroke="#5b8dee" stroke-width="1.5" marker-end="url(#ab1)"/>
+    KC       -->> Usuario: exibe formulário login (tema PT-BR)
+    Usuario  ->> KC      : POST credenciais (email + senha)
+    KC       ->> KC      : valida credenciais no realm unifor
+    KC       -->> SPA    : redirect callback?code=AUTH_CODE
 
-<!-- 2: redirect Keycloak -->
-<line x1="392" y1="86" x2="422" y2="86" stroke="#7c6af7" stroke-width="1.5" marker-end="url(#ab2)"/>
-<rect x="426" y="68" width="175" height="36" rx="8" fill="#1a1d27" stroke="#7c6af7" stroke-width="1.5"/>
-<text x="513" y="83" text-anchor="middle" font-size="11" fill="#7c6af7" font-family="Segoe UI,sans-serif">redirect → /auth</text>
-<text x="513" y="98" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Consolas,monospace">?code_challenge&amp;method</text>
+    SPA      ->> KC      : POST /token<br/>code=AUTH_CODE + code_verifier
+    KC       ->> KC      : verifica SHA256(verifier) == code_challenge
+    KC       -->> SPA    : access_token JWT + refresh_token
 
-<!-- 3: exibe login form -->
-<line x1="513" y1="104" x2="513" y2="126" stroke="#7c6af7" stroke-width="1.5"/>
-<line x1="513" y1="126" x2="104" y2="126" stroke="#7c6af7" stroke-width="1.5" marker-end="url(#ab2)"/>
-<rect x="220" y="114" width="168" height="16" rx="3" fill="#1a1d27"/>
-<text x="304" y="126" text-anchor="middle" font-size="10" fill="#7c6af7" font-family="Segoe UI,sans-serif">② exibe formulário de login</text>
+    Note over SPA        : token armazenado em memória (keycloak.token)<br/>withAutoRefreshToken — renova 30s antes do vencimento
 
-<!-- 4: credenciais -->
-<rect x="18" y="143" width="170" height="36" rx="8" fill="#1a1d27" stroke="#3ecf8e" stroke-width="1.5"/>
-<text x="103" y="158" text-anchor="middle" font-size="11" fill="#3ecf8e" font-weight="600" font-family="Segoe UI,sans-serif">③ digita credenciais</text>
-<text x="103" y="173" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">email + senha</text>
-<line x1="188" y1="161" x2="408" y2="161" stroke="#7c6af7" stroke-width="1.5" marker-end="url(#ab2)"/>
-<rect x="238" y="149" width="96" height="16" rx="3" fill="#1a1d27"/>
-<text x="286" y="161" text-anchor="middle" font-size="10" fill="#7c6af7" font-family="Segoe UI,sans-serif">POST credenciais</text>
-
-<!-- 5: Keycloak valida → auth_code -->
-<rect x="426" y="195" width="175" height="36" rx="8" fill="#1a1d27" stroke="#7c6af7" stroke-width="1.5"/>
-<text x="513" y="211" text-anchor="middle" font-size="11" fill="#7c6af7" font-family="Segoe UI,sans-serif">valida · gera auth_code</text>
-<text x="513" y="226" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">redirect_uri?code=…</text>
-<line x1="513" y1="179" x2="513" y2="193" stroke="#7c6af7" stroke-width="1.5" marker-end="url(#ab2)"/>
-<line x1="410" y1="213" x2="394" y2="213" stroke="#5b8dee" stroke-width="1.5" marker-end="url(#ab1)"/>
-<rect x="306" y="201" width="88" height="16" rx="3" fill="#1a1d27"/>
-<text x="350" y="213" text-anchor="middle" font-size="10" fill="#5b8dee" font-family="Segoe UI,sans-serif">④ recebe code</text>
-
-<!-- 6: SPA troca code + verifier por token -->
-<rect x="222" y="252" width="170" height="36" rx="8" fill="#1a1d27" stroke="#5b8dee" stroke-width="1.5"/>
-<text x="307" y="267" text-anchor="middle" font-size="11" fill="#5b8dee" font-family="Segoe UI,sans-serif">POST /token</text>
-<text x="307" y="282" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Consolas,monospace">code + code_verifier</text>
-<line x1="307" y1="231" x2="307" y2="250" stroke="#5b8dee" stroke-width="1.5" marker-end="url(#ab1)"/>
-<line x1="392" y1="270" x2="424" y2="270" stroke="#7c6af7" stroke-width="1.5" marker-end="url(#ab2)"/>
-
-<!-- Keycloak verifica PKCE -->
-<rect x="426" y="252" width="175" height="36" rx="8" fill="#1a1d27" stroke="#7c6af7" stroke-width="1.5"/>
-<text x="513" y="268" text-anchor="middle" font-size="11" fill="#7c6af7" font-family="Segoe UI,sans-serif">verifica SHA256(verifier)</text>
-<text x="513" y="283" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">== code_challenge?</text>
-
-<!-- retorna JWT -->
-<line x1="513" y1="288" x2="513" y2="312" stroke="#7c6af7" stroke-width="1.5"/>
-<line x1="513" y1="312" x2="394" y2="312" stroke="#5b8dee" stroke-width="1.5" marker-end="url(#ab1)"/>
-<rect x="400" y="300" width="106" height="16" rx="3" fill="#1a1d27"/>
-<text x="453" y="312" text-anchor="middle" font-size="10" fill="#5b8dee" font-family="Segoe UI,sans-serif">⑤ access_token JWT</text>
-
-<!-- token armazenado -->
-<rect x="222" y="332" width="170" height="36" rx="8" fill="rgba(91,141,238,.1)" stroke="#5b8dee" stroke-width="2"/>
-<text x="307" y="348" text-anchor="middle" font-size="11" fill="#5b8dee" font-weight="700" font-family="Segoe UI,sans-serif">token armazenado</text>
-<text x="307" y="363" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">keycloak.token (memória)</text>
-<line x1="307" y1="330" x2="307" y2="331" stroke="#5b8dee" stroke-width="1.5"/>
-
-<!-- API call -->
-<line x1="307" y1="370" x2="307" y2="396" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#ab3)"/>
-<rect x="222" y="396" width="170" height="36" rx="8" fill="#1a1d27" stroke="#3ecf8e" stroke-width="1.5"/>
-<text x="307" y="412" text-anchor="middle" font-size="11" fill="#3ecf8e" font-family="Segoe UI,sans-serif">⑥ GET /api/v1/matriz</text>
-<text x="307" y="427" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Consolas,monospace">Authorization: Bearer</text>
-<line x1="392" y1="414" x2="613" y2="414" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#ab3)"/>
-
-<!-- Quarkus valida -->
-<rect x="625" y="396" width="175" height="36" rx="8" fill="#1a1d27" stroke="#3ecf8e" stroke-width="1.5"/>
-<text x="712" y="412" text-anchor="middle" font-size="11" fill="#3ecf8e" font-family="Segoe UI,sans-serif">valida JWT via OIDC</text>
-<text x="712" y="427" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">extrai roles + keycloak_id</text>
-
-<!-- resposta -->
-<line x1="712" y1="432" x2="712" y2="456" stroke="#3ecf8e" stroke-width="1.5"/>
-<line x1="712" y1="456" x2="394" y2="456" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#ab3)"/>
-<rect x="490" y="444" width="106" height="16" rx="3" fill="#1a1d27"/>
-<text x="543" y="456" text-anchor="middle" font-size="10" fill="#3ecf8e" font-family="Segoe UI,sans-serif">⑦ 200 OK + dados</text>
-
-<!-- AutoRefresh note -->
-<rect x="222" y="490" width="170" height="52" rx="8" fill="rgba(91,141,238,.06)" stroke="#5b8dee" stroke-width="1" stroke-dasharray="4,2"/>
-<text x="307" y="508" text-anchor="middle" font-size="10" fill="#5b8dee" font-weight="700" font-family="Segoe UI,sans-serif">withAutoRefreshToken</text>
-<text x="307" y="524" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">renova token 30s antes</text>
-<text x="307" y="538" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">do vencimento</text>
-
-<!-- PKCE note -->
-<rect x="426" y="490" width="175" height="52" rx="8" fill="rgba(124,106,247,.06)" stroke="#7c6af7" stroke-width="1" stroke-dasharray="4,2"/>
-<text x="513" y="508" text-anchor="middle" font-size="10" fill="#7c6af7" font-weight="700" font-family="Segoe UI,sans-serif">Por que PKCE?</text>
-<text x="513" y="524" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">SPA não tem client_secret.</text>
-<text x="513" y="538" text-anchor="middle" font-size="10" fill="#7e89a9" font-family="Segoe UI,sans-serif">PKCE substitui com segurança.</text>
-</svg>
-</div>
-<div class="cal cp"><strong>Armadilha resolvida — keycloak-angular v20</strong>A v20 deprecou <code>KeycloakService</code>. O correto é <code>inject(Keycloak)</code> do <code>keycloak-js</code>. <code>withAutoRefreshToken</code> exige <code>AutoRefreshTokenService</code> e <code>UserActivityService</code> explicitamente nos <code>providers[]</code> do <code>provideKeycloak()</code> — sem isso: <code>NG0201</code> em runtime.</div>
+    SPA      ->> Quarkus : GET /api/v1/matriz<br/>Authorization: Bearer JWT
+    Quarkus  ->> KC      : valida JWT via OIDC discovery
+    KC       -->> Quarkus: token válido + claims (sub, roles)
+    Note over Quarkus    : @RolesAllowed("COORDENADOR") — 403 se role errada<br/>sub = keycloak_id para buscar Coordenador/Aluno no DB
+    Quarkus  -->> SPA    : 200 OK + dados
+    SPA      -->> Usuario: renderiza página autorizada
+    </div>
+  </div>
+  <div class="cal cp">
+    <strong>Armadilha resolvida — keycloak-angular v20</strong>
+    A v20 deprecou <code>KeycloakService</code>. O correto é <code>inject(Keycloak)</code> direto
+    do pacote <code>keycloak-js</code>. O <code>withAutoRefreshToken</code> exige
+    <code>AutoRefreshTokenService</code> e <code>UserActivityService</code> explicitamente nos
+    <code>providers[]</code> do <code>provideKeycloak()</code> — sem isso o app quebra em runtime
+    com <code>NG0201: No provider for AutoRefreshTokenService</code>.
+  </div>
 </div>
 
 <script>
-function show(id,el){
-  document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'dark',
+  themeVariables: {
+    darkMode: true,
+    background:       '#1a1d27',
+    primaryColor:     '#1e2d47',
+    primaryTextColor: '#e2e6f0',
+    primaryBorderColor:'#5b8dee',
+    lineColor:        '#5b8dee',
+    secondaryColor:   '#22263a',
+    tertiaryColor:    '#12152b',
+    edgeLabelBackground:'#1a1d27',
+    clusterBkg:       '#12152b',
+    clusterBorder:    '#2e3350',
+    titleColor:       '#e2e6f0',
+    actorBkg:         '#1e2d47',
+    actorBorder:      '#5b8dee',
+    actorTextColor:   '#e2e6f0',
+    actorLineColor:   '#5b8dee',
+    signalColor:      '#7e89a9',
+    signalTextColor:  '#e2e6f0',
+    labelBoxBkgColor: '#1a1d27',
+    labelBoxBorderColor:'#2e3350',
+    labelTextColor:   '#e2e6f0',
+    loopTextColor:    '#e2e6f0',
+    noteBkgColor:     '#22263a',
+    noteTextColor:    '#e2e6f0',
+    noteBorderColor:  '#2e3350',
+    activationBorderColor:'#3ecf8e',
+    activationBkgColor:'#1a3a2a',
+    sequenceNumberColor:'#0f1117',
+    attributeBackgroundColorOdd:  '#1a1d27',
+    attributeBackgroundColorEven: '#12152b',
+  },
+  sequence: { showSequenceNumbers: true, mirrorActors: false, boxTextMargin: 6 },
+  er:       { diagramPadding: 30, layoutDirection: 'TB', minEntityWidth: 120, useMaxWidth: true },
+});
+
+function show(id, el) {
+  document.querySelectorAll('.pnl').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   document.getElementById(id).classList.add('on');
   el.classList.add('on');
 }
