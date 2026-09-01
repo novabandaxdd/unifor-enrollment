@@ -187,32 +187,21 @@ Os testes cobrem o `MatriculaService` — a classe com as regras de negócio mai
 
 ```mermaid
 graph TB
-    subgraph Browser["Navegador"]
-        SPA["Angular 20 SPA — porta 4200
-Nx · NgRx Signal Store · PrimeNG 20
-keycloak-angular · authGuard · roleGuard"]
+    subgraph Browser["Navegador - porta 4200"]
+        SPA["Angular 20 SPA<br/>Nx / NgRx Signal Store / PrimeNG 20<br/>keycloak-angular / authGuard / roleGuard"]
     end
-    subgraph KC["Keycloak 24 — porta 8180"]
-        KCS["Realm: unifor
-OAuth2 PKCE S256
-Roles: ALUNO / COORDENADOR
-Tema PT-BR customizado"]
+    subgraph KC["Keycloak 24 - porta 8180"]
+        KCS["Realm: unifor<br/>OAuth2 PKCE S256<br/>Roles: ALUNO / COORDENADOR"]
     end
-    subgraph API["Quarkus 3.20 — porta 8080"]
-        RES["MatrizResource
-MatriculaResource
-ReferenciaResource"]
-        SVC["MatrizService
-MatriculaService"]
-        OIDC["OIDC Verifier
-@RolesAllowed"]
+    subgraph API["Quarkus 3.20 - porta 8080"]
+        RES["MatrizResource / MatriculaResource / ReferenciaResource"]
+        SVC["MatrizService / MatriculaService"]
+        OIDC["OIDC Verifier / @RolesAllowed"]
         RES --> SVC
         OIDC --> RES
     end
-    subgraph DB["PostgreSQL 16 — porta 5432"]
-        SCHEMA["unifor_db
-init.sql + seed data
-Hibernate validate"]
+    subgraph DB["PostgreSQL 16 - porta 5432"]
+        SCHEMA["unifor_db / init.sql + seed data / Hibernate validate"]
     end
     SPA -- "PKCE redirect" --> KC
     KC -- "access_token JWT" --> SPA
@@ -230,7 +219,7 @@ erDiagram
         uuid id PK
         string nome
         int carga_horaria
-        text ementa
+        string ementa
     }
     PROFESSOR {
         uuid id PK
@@ -240,8 +229,8 @@ erDiagram
     HORARIO {
         uuid id PK
         string dia_semana
-        time hora_inicio
-        time hora_fim
+        string hora_inicio
+        string hora_fim
         string periodo
     }
     COORDENADOR {
@@ -253,7 +242,7 @@ erDiagram
     CURSO {
         uuid id PK
         string nome
-        text descricao
+        string descricao
     }
     AULA_MATRIZ {
         uuid id PK
@@ -262,7 +251,7 @@ erDiagram
         uuid horario_id FK
         uuid coordenador_id FK
         int max_alunos
-        bool ativo
+        boolean ativo
     }
     AULA_MATRIZ_CURSO {
         uuid aula_matriz_id FK
@@ -280,18 +269,18 @@ erDiagram
         uuid id PK
         uuid aluno_id FK
         uuid aula_matriz_id FK
-        timestamp data_matricula
-        bool ativo
+        string data_matricula
+        boolean ativo
     }
-    DISCIPLINA ||--o{ AULA_MATRIZ : "1 para N"
-    PROFESSOR ||--o{ AULA_MATRIZ : "1 para N"
-    HORARIO ||--o{ AULA_MATRIZ : "1 para N"
-    COORDENADOR ||--o{ AULA_MATRIZ : "1 para N"
-    AULA_MATRIZ ||--o{ AULA_MATRIZ_CURSO : "tem cursos"
-    CURSO ||--o{ AULA_MATRIZ_CURSO : "em N aulas"
-    CURSO ||--o{ ALUNO : "tem N alunos"
-    ALUNO ||--o{ MATRICULA : "faz N matriculas"
-    AULA_MATRIZ ||--o{ MATRICULA : "tem N matriculas"
+    DISCIPLINA ||--o{ AULA_MATRIZ : disciplina
+    PROFESSOR ||--o{ AULA_MATRIZ : professor
+    HORARIO ||--o{ AULA_MATRIZ : horario
+    COORDENADOR ||--o{ AULA_MATRIZ : coordenador
+    AULA_MATRIZ ||--o{ AULA_MATRIZ_CURSO : cursos
+    CURSO ||--o{ AULA_MATRIZ_CURSO : aulas
+    CURSO ||--o{ ALUNO : alunos
+    ALUNO ||--o{ MATRICULA : matriculas
+    AULA_MATRIZ ||--o{ MATRICULA : inscricoes
 ```
 
 ### Fluxo de Matrícula
