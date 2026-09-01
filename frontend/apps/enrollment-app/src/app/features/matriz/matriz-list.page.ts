@@ -560,9 +560,18 @@ export class MatrizListPage implements OnInit {
 
   constructor() {
     effect(() => {
+      const success = this.store.successMessage();
+      if (success) {
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: success, life: 3000 });
+        this.store.clearMessages();
+      }
+    });
+
+    effect(() => {
       const err = this.store.error();
       if (err) {
         this.messageService.add({ severity: 'error', summary: 'Erro', detail: err, life: 5000 });
+        this.store.clearMessages();
       }
     });
   }
@@ -620,12 +629,6 @@ export class MatrizListPage implements OnInit {
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
         this.store.excluirAula(aula.id);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Excluido',
-          detail: `Aula de "${aula.disciplina.nome}" removida com sucesso.`,
-          life: 3000,
-        });
       },
     });
   }

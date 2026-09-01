@@ -37,13 +37,16 @@
             display: flex;
             align-items: stretch;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* ══ Shell de dois painéis ═══════════════════════════════════ */
         #unifor-login-shell {
             display: flex;
             width: 100%;
+            max-width: 100vw;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* ══ Painel Esquerdo — Branding ══════════════════════════════ */
@@ -128,7 +131,7 @@
 
         /* ══ Painel Direito — Formulário ════════════════════════════ */
         .form-panel {
-            flex: 1; display: flex; align-items: center; justify-content: center;
+            flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center;
             background: #f1f5f9; padding: 2rem 1.5rem;
         }
 
