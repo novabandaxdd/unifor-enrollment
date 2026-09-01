@@ -205,16 +205,16 @@
         .form-input.input-error { border-color: #f87171; background: #fff5f5; }
 
         .password-wrap { position: relative; }
-        .password-wrap .form-input { padding-right: 2.75rem; }
+        /* padding-right largo o suficiente para acomodar o olho + ícone de autofill do browser */
+        .password-wrap .form-input { padding-right: 4.5rem; }
 
-        /* Remove ícone nativo de reveal do browser (Edge/IE, Chrome, Safari) */
+        /* Remove ícone nativo de reveal do Edge/IE; mantém autofill do Chrome mas afasta o olho dele */
         .password-wrap .form-input::-ms-reveal,
         .password-wrap .form-input::-ms-clear { display: none; }
-        .password-wrap .form-input::-webkit-contacts-auto-fill-button,
-        .password-wrap .form-input::-webkit-credentials-auto-fill-button { display: none; visibility: hidden; }
 
+        /* Botão olho posicionado à esquerda do ícone de autofill do browser (~24px) */
         .toggle-password {
-            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            position: absolute; right: 2.4rem; top: 50%; transform: translateY(-50%);
             background: none; border: none; color: #94a3b8; cursor: pointer;
             padding: 4px; border-radius: 4px;
             display: flex; align-items: center; justify-content: center;
