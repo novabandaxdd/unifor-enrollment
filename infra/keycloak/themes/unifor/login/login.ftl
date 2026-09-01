@@ -111,7 +111,6 @@
                                 type="password"
                                 autocomplete="current-password"
                                 placeholder="••••••••"
-                                style="-webkit-text-security: disc; -ms-reveal: none;"
                             />
                             <button type="button" class="toggle-password" onclick="togglePassword()" tabindex="-1" aria-label="Mostrar senha">
                                 <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
